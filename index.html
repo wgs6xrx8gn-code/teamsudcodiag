@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>TeamSudCoDIAG — DIAGER 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&display=swap');
+:root{
+  --J:#F5C500;--JD:#C9A000;--N:#111;--GF:#222;--GM:#666;
+  --GL:#E5E5E5;--B:#F7F7F5;--R:#C0392B;--V:#1B6B2A;--BL:#1255A0;--W:#fff;
+  --OR:#E67E22;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Barlow',sans-serif;background:var(--B);color:var(--N);min-height:100vh;}
+
+/* LOGIN */
+#LS{display:flex;align-items:center;justify-content:center;min-height:100vh;
+    background:linear-gradient(135deg,#080808 0%,#181818 100%);position:fixed;inset:0;z-index:999;}
+.LBox{background:#1a1a1a;border:2px solid var(--J);padding:44px 40px;width:380px;max-width:94vw;}
+.LLogo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;color:#555;letter-spacing:4px;text-transform:uppercase;}
+.LTitle{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:36px;color:var(--J);letter-spacing:3px;margin-bottom:4px;}
+.LSub{color:#666;font-size:11px;letter-spacing:1px;text-transform:uppercase;margin:8px 0 32px;border-top:1px solid #333;padding-top:10px;}
+.Llbl{display:block;color:#999;font-size:10px;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;font-weight:600;}
+.Linp{width:100%;background:#252525;border:1px solid #444;color:#fff;padding:12px 15px;font-size:14px;font-family:'Barlow',sans-serif;margin-bottom:16px;outline:none;transition:.2s;}
+.Linp:focus{border-color:var(--J);}
+.LBtn{width:100%;background:var(--J);color:var(--N);border:none;padding:14px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:.2s;}
+.LBtn:hover{background:var(--JD);}
+.LErr{color:var(--R);font-size:12px;margin-top:10px;min-height:16px;text-align:center;}
+
+/* APP */
+.App{display:none;flex-direction:column;min-height:100vh;}.App.V{display:flex;}
+header{background:var(--N);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;position:sticky;top:0;z-index:100;border-bottom:3px solid var(--J);}
+.HLogo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:10px;color:#555;letter-spacing:3px;}
+.HTitle{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:var(--J);letter-spacing:2px;}
+.HRight{display:flex;align-items:center;gap:12px;}
+.HUser{color:#888;font-size:12px;}.HUser span{color:var(--J);font-weight:700;}
+.BLogout{background:none;border:1px solid #444;color:#777;padding:5px 11px;font-size:11px;cursor:pointer;font-family:'Barlow',sans-serif;text-transform:uppercase;letter-spacing:1px;transition:.2s;}
+.BLogout:hover{border-color:var(--R);color:var(--R);}
+
+/* IMPORT BANNER */
+.ImpBanner{background:var(--W);border-bottom:2px solid var(--GL);padding:8px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 2px 6px rgba(0,0,0,.04);}
+.ImpDot{width:9px;height:9px;border-radius:50%;background:var(--R);flex-shrink:0;}
+.ImpDot.ok{background:var(--V);}
+.BImp{background:var(--J);border:none;padding:7px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;cursor:pointer;transition:.2s;white-space:nowrap;}
+.BImp:hover{background:var(--JD);}
+.BImpSm{background:none;border:1px solid var(--GL);color:var(--GM);padding:5px 11px;font-family:'Barlow',sans-serif;font-size:11px;cursor:pointer;transition:.2s;}
+.BImpSm:hover{border-color:var(--J);color:var(--N);}
+
+/* NAV */
+.NavTabs{display:flex;border-bottom:2px solid var(--GL);background:var(--W);padding:0 18px;overflow-x:auto;}
+.NavTab{padding:9px 15px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border:none;background:none;color:var(--GM);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;white-space:nowrap;}
+.NavTab.active{color:var(--N);border-bottom-color:var(--J);}
+
+/* VIEWS */
+.View{display:none;flex:1;overflow:hidden;flex-direction:column;}
+.View.A{display:flex;}
+
+/* PROFIL BAR */
+.ProfBar{background:var(--W);border-bottom:1px solid var(--GL);padding:8px 14px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;box-shadow:0 2px 6px rgba(0,0,0,.04);}
+.PBtn{padding:7px 14px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border:2px solid var(--GL);background:var(--B);color:var(--GM);transition:.15s;}
+.PBtn.active{background:var(--N);color:var(--J);border-color:var(--N);}
+.PBtn.p0.active{background:var(--BL);color:#fff;border-color:var(--BL);}
+.PBtn.p1.active{background:var(--V);color:#fff;border-color:var(--V);}
+.PBtn.p2.active{background:var(--J);color:var(--N);border-color:var(--J);}
+.PSep{width:1px;height:26px;background:var(--GL);}
+.DocToggle{display:flex;border:2px solid var(--J);}
+.DocBtn{padding:6px 13px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border:none;background:transparent;color:var(--J);transition:.15s;}
+.DocBtn.active{background:var(--J);color:var(--N);}
+.Bdg{background:var(--J);color:var(--N);font-weight:900;font-size:11px;padding:2px 8px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;}
+
+/* MARGE + DRILL */
+.MargeBar{background:var(--W);border-bottom:1px solid var(--GL);padding:8px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;display:none;}
+.MargeVal{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:17px;min-width:42px;}
+.DrillBox{display:flex;align-items:center;gap:8px;margin-left:12px;}
+.DrillInp{border:2px solid var(--GL);padding:6px 10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;width:110px;outline:none;background:var(--B);}
+.DrillInp:focus{border-color:var(--J);}
+.BDrill{background:var(--V);border:none;color:#fff;padding:6px 12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;cursor:pointer;}
+.DrillStat{font-size:11px;font-weight:700;color:var(--R);}
+.DrillStat.ok{color:var(--V);}
+
+/* CODE BAR */
+.CodeBar{background:#FFFBEE;border-bottom:1px solid #FFE082;padding:7px 14px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.CInp{border:2px solid #FFE082;padding:6px 10px;font-family:'Barlow',sans-serif;font-size:12px;background:#fff;outline:none;width:130px;text-transform:uppercase;}
+.CInp:focus{border-color:var(--J);}
+.BCode{background:var(--J);border:none;padding:6px 13px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;cursor:pointer;}
+.CodePill{background:var(--N);color:var(--J);padding:2px 9px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:4px;border-radius:2px;}
+.CodePill button{background:none;border:none;cursor:pointer;color:var(--J);font-size:12px;padding:0;line-height:1;}
+
+/* TOOLBAR */
+.TB{background:var(--W);border-bottom:1px solid var(--GL);padding:7px 12px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.SBox{position:relative;flex:1;min-width:160px;max-width:360px;}
+.SBox input{width:100%;border:2px solid var(--GL);padding:7px 12px 7px 32px;font-size:12px;font-family:'Barlow',sans-serif;outline:none;transition:.2s;background:var(--B);}
+.SBox input:focus{border-color:var(--J);}
+.SIco{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--GM);font-size:12px;}
+select.FSel{border:2px solid var(--GL);padding:6px 9px;font-family:'Barlow',sans-serif;font-size:12px;background:var(--B);outline:none;cursor:pointer;transition:.2s;}
+select.FSel:focus{border-color:var(--J);}
+
+/* CATALOGUE */
+.CatWrap{display:flex;flex:1;overflow:hidden;}
+.CatPanel{flex:1;overflow:auto;}
+.CatTbl{width:100%;border-collapse:collapse;font-size:11.5px;}
+.CatTbl thead{background:var(--N);color:#fff;position:sticky;top:0;z-index:10;}
+.CatTbl th{padding:8px 9px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;}
+.CatTbl th.C,.CatTbl td.C{text-align:center;}
+.CatTbl th.R,.CatTbl td.R{text-align:right;}
+.CatTbl tbody tr{border-bottom:1px solid var(--GL);transition:.1s;}
+.CatTbl tbody tr:hover{background:#FFFBEE;}
+.CatTbl tbody tr.IC{background:#FFF9DC;}
+.CatTbl td{padding:6px 9px;vertical-align:middle;}
+.RefCell{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:var(--BL);white-space:nowrap;}
+.DesigCell{max-width:240px;line-height:1.3;font-size:11px;}
+.Tag{display:inline-block;padding:1px 5px;font-size:8.5px;font-weight:700;border-radius:1px;margin-left:2px;vertical-align:middle;}
+.TagT2{background:#FFF3C0;color:#856404;border:1px solid #FFE082;}
+.TagDrill{background:#E8F5E9;color:var(--V);border:1px solid #C8E6C9;}
+.TagPts{background:#E8EAF6;color:var(--BL);border:1px solid #C5CAE9;}
+.TagPromo{background:var(--J);color:var(--N);}
+.PrixForce{border-color:var(--OR)!important;background:#FFF8F0!important;}
+.PrixForceMark{font-size:8px;color:var(--OR);font-weight:700;}
+
+/* QTE */
+.QW{display:flex;align-items:center;gap:2px;}
+.QB{width:20px;height:20px;background:var(--GL);border:none;cursor:pointer;font-size:13px;font-weight:900;color:var(--GF);display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0;border-radius:2px;}
+.QB:hover{background:var(--J);}
+.QI{width:44px;text-align:center;border:2px solid var(--GL);padding:3px 2px;font-size:12px;font-family:'Barlow',sans-serif;font-weight:600;outline:none;transition:.2s;}
+.QI:focus,.QI.HV{border-color:var(--J);background:#FFFBEE;}
+.PxI{width:66px;text-align:right;border:2px solid var(--GL);padding:3px 5px;font-size:11px;font-family:'Barlow',sans-serif;outline:none;transition:.2s;background:var(--B);}
+.PxI:focus{border-color:var(--J);}
+
+/* CART */
+.CartP{width:350px;border-left:2px solid var(--GL);display:flex;flex-direction:column;background:var(--W);}
+.CartH{background:var(--N);color:var(--J);padding:10px 14px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;}
+.CC{background:var(--J);color:var(--N);font-size:11px;font-weight:900;padding:2px 8px;border-radius:20px;}
+.CartBody{flex:1;overflow-y:auto;padding:9px;}
+.CartEmpty{text-align:center;color:var(--GM);padding:28px 14px;font-size:12px;line-height:1.9;}
+.CI{border:1px solid var(--GL);padding:7px 9px;margin-bottom:5px;position:relative;background:var(--B);}
+.CI:hover{border-color:var(--J);}
+.CIRef{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:var(--BL);}
+.CIDesc{font-size:10px;color:var(--GM);margin:1px 0 4px;line-height:1.3;}
+.CIRow{display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-top:2px;}
+.CIPrix{font-weight:800;color:var(--V);}
+.CIRm{position:absolute;top:5px;right:6px;background:none;border:none;color:var(--GM);cursor:pointer;font-size:13px;transition:.15s;padding:2px;}
+.CIRm:hover{color:var(--R);}
+.CartF{border-top:2px solid var(--GL);padding:12px;}
+.CTRow{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.CTLbl{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.CTAmt{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:900;color:var(--V);}
+.PtsAmt{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--BL);}
+.EFld{margin-bottom:7px;position:relative;}
+.EFld label,.NFld label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--GM);margin-bottom:4px;}
+.EFld input,.NFld input{width:100%;border:2px solid var(--GL);padding:7px 9px;font-size:12px;font-family:'Barlow',sans-serif;outline:none;transition:.2s;background:var(--B);}
+.EFld input:focus,.NFld input:focus{border-color:var(--J);}
+.ESugg{position:absolute;top:100%;left:0;right:0;background:var(--W);border:1px solid var(--GL);border-top:none;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,.1);max-height:120px;overflow-y:auto;display:none;}
+.ESItem{padding:7px 9px;font-size:12px;cursor:pointer;transition:.1s;border-bottom:1px solid var(--GL);}
+.ESItem:hover{background:#FFFBEE;}
+.NFld{margin-bottom:7px;}
+.BClr{width:100%;background:none;border:1px solid var(--GL);color:var(--GM);padding:6px;font-family:'Barlow',sans-serif;font-size:11px;cursor:pointer;transition:.2s;margin-bottom:6px;}
+.BClr:hover{border-color:var(--R);color:var(--R);}
+.BSend{width:100%;background:var(--J);color:var(--N);border:none;padding:12px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:.2s;}
+.BSend:hover{background:var(--JD);}
+.BSend:active{transform:scale(.98);}
+
+/* HIST */
+.HistPanel{display:none;padding:22px;overflow-y:auto;}
+.HistPanel.A{display:block;}
+.HTitle{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;text-transform:uppercase;letter-spacing:3px;margin-bottom:18px;border-bottom:3px solid var(--J);padding-bottom:8px;}
+.HTbl{width:100%;border-collapse:collapse;font-size:12px;}
+.HTbl thead{background:var(--N);color:#fff;}
+.HTbl th{padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;}
+.HTbl tbody tr{border-bottom:1px solid var(--GL);}
+.HTbl tbody tr:hover{background:#FFFBEE;}
+.HTbl td{padding:7px 10px;}
+.HBdg{padding:2px 7px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-radius:2px;}
+.HBdg.devis{background:#E3F2FD;color:var(--BL);}
+.HBdg.commande{background:#E8F5E9;color:var(--V);}
+.BDel{background:none;border:1px solid var(--GL);color:var(--GM);padding:3px 7px;font-size:10px;cursor:pointer;font-family:'Barlow',sans-serif;transition:.2s;}
+.BDel:hover{border-color:var(--R);color:var(--R);}
+
+/* ADMIN */
+.AdminP{display:none;padding:22px;overflow-y:auto;max-width:860px;}
+.AdminP.A{display:block;}
+.AdminT{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;text-transform:uppercase;letter-spacing:3px;margin-bottom:18px;}
+.ASection{margin-bottom:26px;}
+.ASH{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;padding-bottom:5px;border-bottom:2px solid var(--GL);}
+.UTbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px;}
+.UTbl thead{background:var(--N);color:#fff;}
+.UTbl th{padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;}
+.UTbl tbody tr{border-bottom:1px solid var(--GL);}
+.UTbl tbody tr:hover{background:#FFFBEE;}
+.UTbl td{padding:7px 10px;}
+.RBdg{padding:2px 8px;font-size:10px;font-weight:700;text-transform:uppercase;border-radius:2px;}
+.RBdg.admin{background:#FFF3C0;color:#856404;}
+.RBdg.commercial{background:#E8F5E9;color:var(--V);}
+.PwdC{font-family:monospace;font-size:12px;background:var(--GL);padding:2px 7px;cursor:pointer;}
+.PwdC:hover{background:var(--J);}
+.BA{background:var(--J);border:none;padding:7px 13px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:.2s;margin-right:6px;margin-bottom:6px;}
+.BA:hover{background:var(--JD);}
+.CfgRow{display:flex;gap:10px;margin-bottom:8px;align-items:flex-end;flex-wrap:wrap;}
+.CfgField{display:flex;flex-direction:column;gap:3px;}
+.CfgField label{font-size:10px;font-weight:700;color:var(--GM);text-transform:uppercase;letter-spacing:1px;}
+.CfgField input{border:2px solid var(--GL);padding:6px 9px;font-family:'Barlow',sans-serif;font-size:12px;background:var(--B);outline:none;transition:.2s;}
+.CfgField input:focus{border-color:var(--J);}
+
+/* MODAL */
+.MOv{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;padding:14px;}
+.MOv.O{display:flex;}
+.Modal{background:var(--W);width:520px;max-width:100%;padding:28px 32px;border-top:4px solid var(--J);box-shadow:0 20px 60px rgba(0,0,0,.4);max-height:90vh;overflow-y:auto;}
+.MTitle{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;}
+.MSub{color:var(--GM);font-size:11px;margin-bottom:18px;}
+.MSum{background:var(--B);padding:11px;font-size:11px;line-height:1.9;border:1px solid var(--GL);max-height:200px;overflow-y:auto;}
+.MAct{display:flex;gap:9px;margin-top:16px;}
+.BMPrim{flex:1;background:var(--J);border:none;padding:12px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:.2s;}
+.BMPrim:hover{background:var(--JD);}
+.BMCanc{flex:0 0 auto;background:none;border:1px solid var(--GL);padding:12px 15px;font-family:'Barlow',sans-serif;font-size:12px;cursor:pointer;color:var(--GM);transition:.2s;}
+.BMCanc:hover{border-color:var(--R);color:var(--R);}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--N);color:#fff;padding:11px 17px;font-size:12px;font-family:'Barlow',sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.3);border-left:4px solid var(--J);z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);max-width:310px;}
+#toast.S{transform:translateY(0);opacity:1;}
+#toast.err{border-left-color:var(--R);}
+#toast.ok{border-left-color:var(--V);}
+#mail-banner{position:fixed;bottom:72px;right:20px;background:var(--N);border:2px solid var(--J);padding:14px 17px;z-index:9998;max-width:310px;box-shadow:0 4px 20px rgba(0,0,0,.4);font-family:'Barlow',sans-serif;}
+.PInfo{padding:6px 12px;font-size:11px;color:var(--GM);background:var(--GL);text-align:center;}
+.BMore{display:block;width:100%;padding:9px;background:var(--GL);border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--GM);transition:.2s;}
+.BMore:hover{background:var(--J);color:var(--N);}
+mark{background:#FFF3C0;font-weight:700;}
+@media(max-width:768px){.CartP{width:100%;border-left:none;border-top:2px solid var(--GL);}.CatWrap{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="LS">
+  <div class="LBox">
+    <div class="LLogo">TeamSudCo</div>
+    <div class="LTitle">DIAG</div>
+    <div class="LSub">Commandes &amp; Devis DIAGER — Accès Privé</div>
+    <label class="Llbl">Identifiant</label>
+    <input class="Linp" id="LU" type="text" placeholder="votre.identifiant" autocomplete="username">
+    <label class="Llbl">Mot de passe</label>
+    <input class="Linp" id="LP" type="password" placeholder="••••••••" autocomplete="current-password">
+    <button class="LBtn" onclick="doLogin()">→ CONNEXION</button>
+    <div class="LErr" id="LE"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="App" id="APP">
+  <header>
+    <div><div class="HLogo">TEAMSUDCO</div><div class="HTitle">DIAG</div></div>
+    <div class="HRight">
+      <div class="HUser">👤 <span id="UDisp"></span></div>
+      <button class="BLogout" onclick="doLogout()">Déco.</button>
+    </div>
+  </header>
+
+  <!-- IMPORT -->
+  <div class="ImpBanner">
+    <div class="ImpDot" id="impDot"></div>
+    <span id="impTxt" style="font-size:12px;color:var(--GM);">Aucun fichier tarif chargé</span>
+    <button class="BImp" onclick="trigImport()">📂 Charger fichier tarif Excel</button>
+    <button class="BImpSm" id="btnReload" style="display:none" onclick="trigImport()">🔄 Recharger</button>
+    <span id="impInfo" style="font-size:11px;color:var(--GM);"></span>
+    <input type="file" id="fileIn" accept=".xlsx,.xls" style="display:none" onchange="loadXL(this)">
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+      <span style="font-size:11px;color:var(--GM);">Logo :</span>
+      <button class="BImpSm" onclick="document.getElementById('logoIn').click()">🖼 Logo PDF</button>
+      <input type="file" id="logoIn" accept="image/*" style="display:none" onchange="loadLogo(this)">
+      <span id="logoInfo" style="font-size:10px;color:var(--GM);"></span>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <div class="NavTabs">
+    <button class="NavTab active" id="T0" onclick="showTab(0)">📦 Catalogue</button>
+    <button class="NavTab" id="T1" onclick="showTab(1)">📋 Historique</button>
+    <button class="NavTab" id="T2" onclick="showTab(2)" style="display:none">⚙️ Admin</button>
+  </div>
+
+  <!-- CATALOGUE -->
+  <div class="View A" id="V0">
+    <!-- Profil -->
+    <div class="ProfBar">
+      <span style="font-size:10px;font-weight:700;color:var(--GM);text-transform:uppercase;letter-spacing:1px;">Profil :</span>
+      <button class="PBtn p0 active" id="pb0" onclick="setProfil(0)">📦 Distributeur</button>
+      <button class="PBtn p1" id="pb1" onclick="setProfil(1)">👤 Utilisateur JT/TA</button>
+      <button class="PBtn p2" id="pb2" onclick="setProfil(2)">🎯 DrillShow</button>
+      <div class="PSep"></div>
+      <div class="DocToggle">
+        <button class="DocBtn" id="dD" onclick="setDoc('devis')">📄 Devis</button>
+        <button class="DocBtn active" id="dC" onclick="setDoc('commande')">🛒 Commande</button>
+      </div>
+      <div class="PSep"></div>
+      <span class="Bdg" id="cntBdg">0</span>
+      <span style="font-size:11px;color:var(--GM);">produits</span>
+    </div>
+
+    <!-- Marge + Drill -->
+    <div class="MargeBar" id="margeBar">
+      <span style="font-size:10px;font-weight:700;color:var(--GM);text-transform:uppercase;letter-spacing:1px;">Marge :</span>
+      <input type="range" id="margeSlider" min="10" max="50" value="30" oninput="setMarge(this.value)" style="width:130px;">
+      <span class="MargeVal" id="margeVal">30 %</span>
+      <span style="font-size:11px;color:var(--GM);">PV = PA ÷ (1 − marge)</span>
+      <div class="DrillBox" id="drillBox" style="display:none;">
+        <span style="font-size:10px;font-weight:700;color:var(--GM);text-transform:uppercase;letter-spacing:1px;">Code DRILL :</span>
+        <input class="DrillInp" id="drillInp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')unlockDrill()">
+        <button class="BDrill" onclick="unlockDrill()">ACTIVER</button>
+        <span class="DrillStat" id="drillStat">🔒 Verrouillé</span>
+      </div>
+    </div>
+
+    <!-- Codes promo -->
+    <div class="CodeBar">
+      <span style="font-size:10px;font-weight:700;color:#856404;text-transform:uppercase;letter-spacing:1px;">Promo :</span>
+      <input class="CInp" id="codeInp" placeholder="T2, IMPLANT5..." onkeydown="if(event.key==='Enter')applyCode()">
+      <button class="BCode" onclick="applyCode()">APPLIQUER</button>
+      <div id="codesList" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="TB">
+      <div class="SBox">
+        <span class="SIco">🔍</span>
+        <input type="text" id="SI" placeholder="Réf., désignation..." oninput="filter()">
+      </div>
+      <select class="FSel" id="FF" onchange="filter()">
+        <option value="">Toutes familles</option>
+      </select>
+      <select class="FSel" id="FT2" onchange="filter()" style="display:none;">
+        <option value="">Tous T2</option>
+        <option value="t2">Produits T2 uniquement</option>
+      </select>
+      <select class="FSel" id="FDrill" onchange="filter()" style="display:none;">
+        <option value="">Tous produits</option>
+        <option value="drill">Produits DRILL uniquement</option>
+      </select>
+    </div>
+
+    <!-- Table + Panier -->
+    <div class="CatWrap">
+      <div class="CatPanel">
+        <table class="CatTbl"><thead id="catHead"></thead><tbody id="catBody"></tbody></table>
+        <div class="PInfo" id="PI"></div>
+        <button class="BMore" id="BM" onclick="loadMore()" style="display:none">▼ Afficher plus</button>
+      </div>
+
+      <!-- PANIER -->
+      <div class="CartP">
+        <div class="CartH">
+          <span id="cartLbl">COMMANDE</span>
+          <span class="CC" id="cartCnt">0</span>
+        </div>
+        <div class="CartBody" id="cartBody">
+          <div class="CartEmpty">📋<br><br>Chargez un fichier tarif<br>puis ajoutez des produits.</div>
+        </div>
+        <div class="CartF">
+          <div id="ptsRow" style="display:none;" class="CTRow">
+            <div class="CTLbl">Points fidélité</div>
+            <div class="PtsAmt" id="cartPts">0 pts</div>
+          </div>
+          <div class="CTRow">
+            <div class="CTLbl" id="cartTotLbl">Total HT</div>
+            <div class="CTAmt" id="cartTot">0,00 €</div>
+          </div>
+          <div class="EFld">
+            <label>Email destinataire *</label>
+            <input type="email" id="EI" placeholder="contact@exemple.fr" oninput="onEI()" onblur="hideES()" autocomplete="off">
+            <div class="ESugg" id="ES"></div>
+          </div>
+          <div class="NFld">
+            <label>Référence / Chantier</label>
+            <input type="text" id="RC" placeholder="BT-2026-001...">
+          </div>
+          <button class="BClr" onclick="clearCart()">🗑 Vider</button>
+          <button class="BSend" onclick="openModal()">✉ ENVOYER</button>
+          <button class="BClr" style="margin-top:5px;border-color:#1255A0;color:#1255A0;font-weight:700;" onclick="exportPDF()">📄 Exporter PDF</button>
+          <button class="BClr" style="margin-top:5px;" onclick="exportXL()">📥 Exporter en Excel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORIQUE -->
+  <div class="HistPanel" id="V1">
+    <div class="HTitle">📋 Historique</div>
+    <div id="HC"><p style="color:var(--GM);font-size:13px;">Aucun document envoyé.</p></div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="AdminP" id="V2">
+    <div class="AdminT">⚙️ Administration</div>
+    <div id="adminContent"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="MOv" id="MOC">
+  <div class="Modal">
+    <div class="MTitle" id="MT">Confirmer</div>
+    <div class="MSub" id="MS"></div>
+    <div class="MSum" id="MSm"></div>
+    <div class="MAct">
+      <button class="BMPrim" onclick="confirmSend()">✉ Confirmer &amp; Envoyer</button>
+      <button class="BMCanc" onclick="closeMod()">Annuler</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+// ── USERS ──
+const USERS={"asadowski": {"p": "ASKIs@op3131", "nom": "A. Sadowski", "role": "admin"}, "ydechaud": {"p": "Hhi#Qeht1O", "nom": "Y. Dechaud", "role": "commercial"}, "lclaustrat": {"p": "n@!5SgvgwK", "nom": "L. Claustrat", "role": "commercial"}, "prorep": {"p": "jZ2G3BzPc2", "nom": "Pro Rep", "role": "commercial"}, "jmarie": {"p": "8OVWL9oz@!", "nom": "J. Marie", "role": "commercial"}, "kassoi": {"p": "1!lRr7cgcz", "nom": "K. Assoi", "role": "commercial"}};
+
+// ── STATE ──
+let CU=null, cat=[], filtered=[], displayed=0;
+const PG=80;
+let profil=0, docType='commande', marge=30, drillOn=false;
+let codes=[];
+let cart={};
+let emailHist=JSON.parse(localStorage.getItem('tsd_em')||'[]');
+let docHist=JSON.parse(localStorage.getItem('tsd_h')||'[]');
+let logoURL=localStorage.getItem('tsd_logo')||null;
+let docNum=parseInt(localStorage.getItem('tsd_num')||'1000');
+
+function getCfg(){
+  return JSON.parse(localStorage.getItem('tsd_cfg')||JSON.stringify({
+    DRILL:'DRILL2026',
+    T2:{debut:'2026-04-01',fin:'2026-07-31',label:'T2 2026 (01/04→31/07)'},
+    IMPLANT5:{taux:5,label:'Implantation -5%'},
+    IMPLANT10:{taux:10,label:'Implantation -10%'},
+    SEUIL:500, TVA:20, MENTIONS:'SAS DIAGER — RCS LONS LE SAUNIER B 408 484 277 — TVA: FR 45 408 484 277 — Capital 3 530 000 €. Paiement : FDM 45 jours. Pénalités de retard applicables.'
+  }));
+}
+
+// ── AUTH ──
+function doLogin(){
+  const u=document.getElementById('LU').value.trim().toLowerCase();
+  const p=document.getElementById('LP').value;
+  const ud=USERS[u];
+  if(ud&&ud.p===p){
+    CU={login:u,...ud};
+    document.getElementById('LS').style.display='none';
+    document.getElementById('APP').classList.add('V');
+    document.getElementById('UDisp').textContent=CU.nom;
+    document.getElementById('T2').style.display=CU.role==='admin'?'':'none';
+    document.getElementById('LE').textContent='';
+  } else {
+    document.getElementById('LE').textContent='❌ Identifiant ou mot de passe incorrect.';
+    document.getElementById('LP').value='';
+  }
+}
+function doLogout(){
+  CU=null;cat=[];filtered=[];codes=[];cart={};drillOn=false;
+  document.getElementById('LS').style.display='flex';
+  document.getElementById('APP').classList.remove('V');
+  document.getElementById('LU').value='';document.getElementById('LP').value='';
+  document.getElementById('impDot').classList.remove('ok');
+  document.getElementById('impTxt').textContent='Aucun fichier tarif chargé';
+  document.getElementById('impInfo').textContent='';
+  document.getElementById('btnReload').style.display='none';
+}
+document.getElementById('LP').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('LU').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('LP').focus();});
+
+// ── IMPORT EXCEL ──
+function trigImport(){document.getElementById('fileIn').click();}
+function loadLogo(inp){
+  const f=inp.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{logoURL=e.target.result;localStorage.setItem('tsd_logo',logoURL);
+    document.getElementById('logoInfo').textContent='✅ '+f.name;toast('✅ Logo chargé !','ok');};
+  r.readAsDataURL(f);
+}
+
+function loadXL(inp){
+  const f=inp.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      // Trouver la feuille tarif principale (pas DRILL, pas CONFIG)
+      const mainSheet=wb.SheetNames.find(n=>!['DRILL','CONFIG','config'].includes(n.toUpperCase()))||wb.SheetNames[0];
+      const ws=wb.Sheets[mainSheet];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
+
+      // Feuille DRILL optionnelle
+      let drillMap={};
+      if(wb.SheetNames.map(n=>n.toUpperCase()).includes('DRILL')){
+        const wsDrill=wb.Sheets[wb.SheetNames.find(n=>n.toUpperCase()==='DRILL')];
+        const dRows=XLSX.utils.sheet_to_json(wsDrill,{defval:null});
+        dRows.forEach(r=>{
+          const ref=String(r['ref']||r['Ref']||r['REF']||'').trim();
+          const pa=parseFloat(String(r['Prix Achat Net DRILL € HT']||'').replace(',','.')) || 0;
+          const pv=parseFloat(String(r['Prix Vente Net DRILL € HT']||'').replace(',','.')) || 0;
+          if(ref) drillMap[ref]={pa,pv};
+        });
+      }
+
+      parseRows(rows, drillMap);
+
+      // UI
+      document.getElementById('impDot').classList.add('ok');
+      document.getElementById('impTxt').textContent='✅ '+f.name;
+      document.getElementById('impInfo').innerHTML=`<strong>${cat.length}</strong> références`;
+      document.getElementById('btnReload').style.display='';
+
+      // Familles
+      const fams=[...new Set(cat.map(p=>p.famille).filter(Boolean))].sort();
+      const sel=document.getElementById('FF');
+      sel.innerHTML='<option value="">Toutes familles</option>';
+      fams.forEach(f=>{const o=document.createElement('option');o.value=o.textContent=f;sel.appendChild(o);});
+
+      filter();
+      toast(`✅ ${cat.length} références importées !`,'ok');
+    }catch(err){toast('❌ Erreur Excel : '+err.message,'err');console.error(err);}
+  };
+  r.readAsArrayBuffer(f);
+  inp.value='';
+}
+
+function parseRows(rows, drillMap){
+  // Trouver la ligne d'en-tête (contient "réf." ou "ref")
+  let headerRow=-1;
+  for(let i=0;i<Math.min(10,rows.length);i++){
+    const r=rows[i];
+    if(r&&r.some(v=>v&&String(v).toLowerCase().includes('réf'))){headerRow=i;break;}
+    if(r&&r.some(v=>v&&String(v).toLowerCase()==='ref')){headerRow=i;break;}
+  }
+  if(headerRow<0){toast('❌ En-tête non trouvé (colonne "réf." introuvable).','err');return;}
+
+  cat=[];
+  for(let i=headerRow+2;i<rows.length;i++){
+    const r=rows[i];
+    if(!r||r.every(v=>v===null||v===undefined||v==='')) continue;
+    const ref=String(r[1]||'').trim();
+    if(!ref||ref===''||isNaN(r[0])&&!ref) continue;
+    const pA=parseFloat(String(r[13]||'').replace(',','.')) || 0;
+    if(!pA&&!ref) continue;
+
+    // Remises quantitatives
+    const ucQ1=parseInt(r[14])||0;
+    const pQ1=parseFloat(String(r[16]||'').replace(',','.')) || 0;
+    const ucQ2=parseInt(r[17])||0;
+    const pQ2=parseFloat(String(r[19]||'').replace(',','.')) || 0;
+    const ucQ3=parseInt(r[20])||0;
+    const pQ3=parseFloat(String(r[22]||'').replace(',','.')) || 0;
+
+    // T2
+    const t2Desc=r[27]?String(r[27]).trim():'';
+    const t2Avantage=r[28]?String(r[28]).trim():'';
+    const hasT2=t2Desc!=='';
+
+    // Points + DRILL depuis feuille principale
+    const pts=parseFloat(String(r[24]||'').replace(',','.')) || 0;
+    let drillPA=parseFloat(String(r[25]||'').replace(',','.')) || 0;
+    let drillPV=parseFloat(String(r[26]||'').replace(',','.')) || 0;
+
+    // Surcharger avec feuille DRILL si disponible
+    if(drillMap[ref]){drillPA=drillMap[ref].pa||drillPA;drillPV=drillMap[ref].pv||drillPV;}
+    const hasDrill=drillPA>0||drillPV>0;
+
+    // Famille: chercher dans les colonnes connues ou dans la désignation
+    const desig=String(r[5]||'').trim();
+    const comment=String(r[23]||'').trim();
+    // Déduire famille depuis désignation
+    let famille='';
+    const dlo=desig.toLowerCase();
+    if(dlo.includes('foret béton')||dlo.includes('foret beton')||dlo.includes('sds+')||dlo.includes('sds-plus')||dlo.includes('sds max')||dlo.includes('rockfaster')||dlo.includes('ultimax')||dlo.includes('speeduster')||dlo.includes('booster')||dlo.includes('twister')||dlo.includes('wallster')||dlo.includes('crosser')) famille='PERÇAGE BÉTON';
+    else if(dlo.includes('trépan')||dlo.includes('trepan')||dlo.includes('crusher')) famille='PERÇAGE BÉTON';
+    else if(dlo.includes('couronne')||dlo.includes('carottage')||dlo.includes('carotteuse')||dlo.includes('bati')||dlo.includes('bâti')) famille='CAROTTAGE';
+    else if(dlo.includes('burin')||dlo.includes('pic ')||dlo.includes('gouge')||dlo.includes('boucharde')||dlo.includes('pelle')) famille='DÉMOLITION';
+    else if(dlo.includes('mèche')||dlo.includes('foret bois')||dlo.includes('fastwood')||dlo.includes('forstner')||dlo.includes('coffrage')||dlo.includes('terrasse')) famille='PERÇAGE BOIS';
+    else if(dlo.includes('hss')||dlo.includes('cobalt')||dlo.includes('taraud')||dlo.includes('extracteur')||dlo.includes('métal')||dlo.includes('acier')||dlo.includes('inox')) famille='PERÇAGE MÉTAL';
+    else if(dlo.includes('scie')||dlo.includes('sciage')||dlo.includes('lame')) famille='SCIAGE';
+    else if(dlo.includes('embout')||dlo.includes('vissage')||dlo.includes('douille')||dlo.includes('stopvis')||dlo.includes('renvoi')||dlo.includes('porte-embout')||dlo.includes('poignee')) famille='VISSAGE';
+    else if(dlo.includes('cerami')||dlo.includes('granit')||dlo.includes('hpl')||dlo.includes('carrel')||dlo.includes('verre')||dlo.includes('faïence')) famille='PERÇAGE SPÉCIFIQUE';
+    else if(dlo.includes('coffret')||dlo.includes('mallette')||dlo.includes('kit')||dlo.includes('boîte')||dlo.includes('boite')) famille='COFFRETS & KITS';
+    else if(dlo.includes('couronne diamant')||dlo.includes('scie trépan')||dlo.includes('grey ceram')||dlo.includes('blue ceram')) famille='PERÇAGE SPÉCIFIQUE';
+    else famille='ACCESSOIRES';
+
+    cat.push({
+      ref, desig,
+      famille,
+      diam:String(r[2]||'').trim(),
+      gencod:String(r[7]||'').trim(),
+      pCat:parseFloat(String(r[12]||'').replace(',','.')) || 0,
+      pAch:pA,
+      ucQ1,pQ1,ucQ2,pQ2,ucQ3,pQ3,
+      hasT2, t2Desc, t2Avantage,
+      hasDrill, drillPA, drillPV,
+      pts, comment
+    });
+  }
+}
+
+// ── PROFIL ──
+function setProfil(p){
+  profil=p;
+  [0,1,2].forEach(i=>{
+    document.getElementById('pb'+i).classList.toggle('active',i===p);
+  });
+  document.getElementById('margeBar').style.display=p>0?'flex':'none';
+  document.getElementById('drillBox').style.display=p===2?'flex':'none';
+  document.getElementById('FT2').style.display=p===0?'':'none';
+  document.getElementById('FDrill').style.display=p===2?'':'none';
+  document.getElementById('ptsRow').style.display=p===2?'':'none';
+  if(p!==2){drillOn=false;document.getElementById('drillStat').textContent='🔒 Verrouillé';document.getElementById('drillStat').classList.remove('ok');}
+  cart={};
+  buildHeader();
+  document.getElementById('catBody').innerHTML='';
+  displayed=0;
+  loadMore();
+  renderCart();
+}
+
+function setDoc(t){
+  docType=t;
+  document.getElementById('dD').classList.toggle('active',t==='devis');
+  document.getElementById('dC').classList.toggle('active',t==='commande');
+  document.getElementById('dD').style.cssText=t==='devis'?'background:var(--J);color:var(--N)':'';
+  document.getElementById('dC').style.cssText=t==='commande'?'background:var(--J);color:var(--N)':'';
+  document.getElementById('cartLbl').textContent=t==='devis'?'DEVIS':'COMMANDE';
+}
+
+function setMarge(v){
+  marge=parseInt(v);
+  document.getElementById('margeVal').textContent=v+' %';
+  Object.values(cart).forEach(item=>{if(!item.force)item.pv=calcPV(item.p,item.qte);});
+  refreshTable();
+  renderCart();
+}
+
+function unlockDrill(){
+  const code=document.getElementById('drillInp').value.trim();
+  if(code===getCfg().DRILL){
+    drillOn=true;
+    document.getElementById('drillStat').textContent='🔓 Actif';
+    document.getElementById('drillStat').classList.add('ok');
+    document.getElementById('drillInp').value='';
+    refreshTable();
+    toast('✅ Tarifs DRILL débloqués !','ok');
+  } else {
+    toast('❌ Code DRILL incorrect.','err');
+  }
+}
+
+// ── CODES PROMO ──
+function applyCode(){
+  const code=document.getElementById('codeInp').value.trim().toUpperCase();
+  if(!code){toast('Saisissez un code.','err');return;}
+  const cfg=getCfg();
+  const now=new Date();
+  const valid=['T2','IMPLANT5','IMPLANT10'];
+  if(!valid.includes(code)){toast('❌ Code "'+code+'" inconnu.','err');return;}
+  if(codes.find(c=>c.code===code)){toast('Code déjà appliqué.','err');return;}
+  if(code==='T2'){
+    const d=new Date(cfg.T2.debut),f=new Date(cfg.T2.fin);
+    if(now<d||now>f){toast(`❌ T2 hors période (${cfg.T2.debut} → ${cfg.T2.fin}).`,'err');return;}
+    codes.push({code,label:cfg.T2.label,type:'T2'});
+  } else {
+    const taux=cfg[code].taux;
+    codes.push({code,label:cfg[code].label,type:'IMPLANT',taux});
+  }
+  document.getElementById('codeInp').value='';
+  renderCodes();
+  Object.values(cart).forEach(item=>{if(!item.force)item.pv=calcPV(item.p,item.qte);});
+  refreshTable();
+  renderCart();
+  toast('✅ Code '+code+' appliqué !','ok');
+}
+
+function removeCode(code){
+  codes=codes.filter(c=>c.code!==code);
+  renderCodes();
+  Object.values(cart).forEach(item=>{if(!item.force)item.pv=calcPV(item.p,item.qte);});
+  refreshTable();
+  renderCart();
+}
+
+function renderCodes(){
+  document.getElementById('codesList').innerHTML=codes.map(c=>
+    `<div class="CodePill">${c.label}<button onclick="removeCode('${c.code}')">✕</button></div>`
+  ).join('');
+}
+
+// ── CALCUL PRIX ──
+function getPA(p,qte){
+  if(profil===2&&drillOn&&p.drillPA>0) return p.drillPA;
+  if(p.ucQ3>0&&qte>=p.ucQ3&&p.pQ3>0) return p.pQ3;
+  if(p.ucQ2>0&&qte>=p.ucQ2&&p.pQ2>0) return p.pQ2;
+  if(p.ucQ1>0&&qte>=p.ucQ1&&p.pQ1>0) return p.pQ1;
+  return p.pAch;
+}
+
+function applyT2(p,prix){
+  // T2 actif : utiliser l'avantage T2 de l'article si disponible
+  // L'avantage T2 est descriptif (tickets, %, 1 offert/5) — on l'affiche sur le doc
+  // Pour le calcul prix, on applique le premier % trouvé dans t2Avantage
+  if(!p.hasT2) return prix;
+  const av=p.t2Avantage;
+  // Extraire premier % : "10%/15%" → 10, "5%/10%" → 5, "15%/18%" → 15
+  const m=av.match(/(\d+)\s*%/);
+  if(m) return Math.round(prix*(1-parseInt(m[1])/100)*100)/100;
+  // "1 offert/5 ach." → réduction équivalente 16.67%
+  if(av.includes('offert')) return Math.round(prix*(5/6)*100)/100;
+  // Tickets grattage → pas de remise prix, avantage en nature
+  return prix;
+}
+
+function applyIMPLANT(prix){
+  codes.filter(c=>c.type==='IMPLANT').forEach(c=>{
+    prix=Math.round(prix*(1-c.taux/100)*100)/100;
+  });
+  return prix;
+}
+
+function calcPV(p,qte){
+  let pa=getPA(p,qte);
+  // Appliquer T2 si actif sur article éligible
+  if(codes.find(c=>c.type==='T2')&&p.hasT2) pa=applyT2(p,pa);
+  // IMPLANT
+  pa=applyIMPLANT(pa);
+  if(profil===0) return pa;
+  // JT/TA et DrillShow : ajouter marge
+  return Math.round(pa/(1-marge/100)*100)/100;
+}
+
+function fmt(v){return parseFloat(v||0).toFixed(2).replace('.',',');}
+function qiid(ref){return 'qi_'+ref.replace(/[^a-zA-Z0-9]/g,'_');}
+function pvid(ref){return 'pv_'+ref.replace(/[^a-zA-Z0-9]/g,'_');}
+
+// ── TABLE ──
+function buildHeader(){
+  const h=document.getElementById('catHead');
+  let cols=`<th>Référence</th><th>Désignation</th>`;
+  if(profil===0){
+    cols+=`<th class="R">Prix catalogue</th><th class="R">Prix achat HT</th>`;
+  } else if(profil===1){
+    cols+=`<th class="R">Prix achat HT</th><th class="R">Prix vente HT</th>`;
+  } else {
+    if(drillOn) cols+=`<th class="R">Achat std</th><th class="R">Achat DRILL</th><th class="R">PV DRILL</th>`;
+    else cols+=`<th class="R">Prix achat HT</th><th class="R">Prix vente HT</th>`;
+  }
+  cols+=`<th class="C">Qté</th>`;
+  h.innerHTML=`<tr>${cols}</tr>`;
+}
+
+function filter(){
+  if(!cat.length) return;
+  const q=document.getElementById('SI').value.toLowerCase().trim();
+  const fam=document.getElementById('FF').value;
+  const ft2=document.getElementById('FT2').value;
+  const fdrill=document.getElementById('FDrill').value;
+  filtered=cat.filter(p=>{
+    if(fam&&p.famille!==fam) return false;
+    if(ft2==='t2'&&!p.hasT2) return false;
+    if(fdrill==='drill'&&!p.hasDrill) return false;
+    if(q) return p.ref.toLowerCase().includes(q)||p.desig.toLowerCase().includes(q);
+    return true;
+  });
+  displayed=0;
+  document.getElementById('catBody').innerHTML='';
+  buildHeader();
+  loadMore();
+  document.getElementById('cntBdg').textContent=filtered.length;
+}
+
+function refreshTable(){
+  buildHeader();
+  document.getElementById('catBody').innerHTML='';
+  displayed=0;
+  loadMore();
+}
+
+function loadMore(){
+  const tbody=document.getElementById('catBody');
+  const q=document.getElementById('SI').value.toLowerCase().trim();
+  const end=Math.min(displayed+PG,filtered.length);
+  for(let i=displayed;i<end;i++){
+    const p=filtered[i];
+    const inC=!!cart[p.ref];
+    const item=cart[p.ref];
+    const qv=inC?item.qte:'';
+    const pv=inC?item.pv:calcPV(p,1);
+    const pa=getPA(p,qv||1);
+    const rid='rw_'+p.ref.replace(/[^a-zA-Z0-9]/g,'_');
+    const tr=document.createElement('tr');
+    tr.id=rid; if(inC)tr.classList.add('IC');
+
+    // Tags
+    const hasT2Active=codes.find(c=>c.type==='T2')&&p.hasT2;
+    const t2Tag=p.hasT2?`<span class="Tag TagT2">T2${hasT2Active?' ✓':''}</span>`:'';
+    const drillTag=p.hasDrill?`<span class="Tag TagDrill">DRILL</span>`:'';
+    const ptsTag=p.pts>0?`<span class="Tag TagPts">${p.pts}pts</span>`:'';
+
+    // Colonnes prix
+    let px='';
+    if(profil===0){
+      px=`<td class="R" style="color:var(--GM);font-size:11px;">${p.pCat>0?fmt(p.pCat)+' €':'—'}</td>
+          <td class="R" style="font-weight:700;">${fmt(pa)} €</td>`;
+    } else if(profil===1){
+      px=`<td class="R" style="color:var(--GM);font-size:11px;">${fmt(pa)} €</td>
+          <td class="R"><input type="number" id="${pvid(p.ref)}" value="${pv.toFixed(2)}" step="0.01" class="PxI${inC&&item.force?' PrixForce':''}" onchange="forcePV('${p.ref}',this.value)" title="Modifier pour forcer le prix"></td>`;
+    } else {
+      if(drillOn){
+        px=`<td class="R" style="color:var(--GM);font-size:11px;">${fmt(p.pAch)} €</td>
+            <td class="R" style="color:var(--V);font-weight:700;">${p.drillPA>0?fmt(p.drillPA)+' €':'—'}</td>
+            <td class="R"><input type="number" id="${pvid(p.ref)}" value="${pv.toFixed(2)}" step="0.01" class="PxI${inC&&item.force?' PrixForce':''}" onchange="forcePV('${p.ref}',this.value)" title="Forcer le prix de vente"></td>`;
+      } else {
+        px=`<td class="R" style="color:var(--GM);font-size:11px;">${fmt(pa)} €</td>
+            <td class="R"><input type="number" id="${pvid(p.ref)}" value="${pv.toFixed(2)}" step="0.01" class="PxI${inC&&item.force?' PrixForce':''}" onchange="forcePV('${p.ref}',this.value)"></td>`;
+      }
+    }
+
+    tr.innerHTML=`
+      <td class="RefCell">${hl(p.ref,q)}</td>
+      <td class="DesigCell">${hl(p.desig,q)}${t2Tag}${drillTag}${ptsTag}</td>
+      ${px}
+      <td class="C">
+        <div class="QW">
+          <button class="QB" onclick="adj('${p.ref}',-1)">−</button>
+          <input type="number" class="QI${inC?' HV':''}" id="${qiid(p.ref)}"
+            value="${qv}" min="0" placeholder="0"
+            onchange="setQ('${p.ref}',this.value)" oninput="setQ('${p.ref}',this.value)">
+          <button class="QB" onclick="adj('${p.ref}',1)">+</button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  }
+  displayed=end;
+  const rem=filtered.length-displayed;
+  document.getElementById('PI').textContent=`${displayed} / ${filtered.length}`;
+  document.getElementById('BM').style.display=rem>0?'block':'none';
+  if(rem>0)document.getElementById('BM').textContent=`▼ ${Math.min(PG,rem)} de plus (${rem})`;
+}
+
+function hl(text,q){
+  if(!q)return text;
+  const i=text.toLowerCase().indexOf(q);
+  if(i<0)return text;
+  return text.substring(0,i)+`<mark>${text.substring(i,i+q.length)}</mark>`+text.substring(i+q.length);
+}
+
+// ── QTE & FORÇAGE ──
+function adj(ref,d){
+  const inp=document.getElementById(qiid(ref)); if(!inp)return;
+  const v=Math.max(0,(parseInt(inp.value)||0)+d);
+  inp.value=v; setQ(ref,v);
+}
+
+function setQ(ref,val){
+  const qte=parseInt(val);
+  const p=cat.find(x=>x.ref===ref); if(!p)return;
+  const inp=document.getElementById(qiid(ref));
+  const row=document.getElementById('rw_'+ref.replace(/[^a-zA-Z0-9]/g,'_'));
+  if(qte>0){
+    const pv=calcPV(p,qte);
+    cart[ref]={p,qte,pv,force:false};
+    if(inp)inp.classList.add('HV');
+    if(row)row.classList.add('IC');
+    const pvi=document.getElementById(pvid(ref));
+    if(pvi&&!cart[ref].force)pvi.value=pv.toFixed(2);
+  } else {
+    delete cart[ref];
+    if(inp){inp.classList.remove('HV');inp.value='';}
+    if(row)row.classList.remove('IC');
+  }
+  renderCart();
+}
+
+function forcePV(ref,val){
+  const pv=parseFloat(val); if(isNaN(pv)||pv<=0)return;
+  if(cart[ref]){
+    cart[ref].pv=pv; cart[ref].force=true;
+    const pvi=document.getElementById(pvid(ref));
+    if(pvi)pvi.classList.add('PrixForce');
+  }
+  renderCart();
+}
+
+// ── CART ──
+function renderCart(){
+  const items=Object.values(cart);
+  document.getElementById('cartCnt').textContent=items.length;
+  const body=document.getElementById('cartBody');
+  if(!items.length){
+    body.innerHTML='<div class="CartEmpty">📋<br><br>Ajoutez des produits.</div>';
+    document.getElementById('cartTot').textContent='0,00 €';
+    document.getElementById('cartPts').textContent='0 pts';
+    return;
+  }
+  let tot=0,pts=0;
+  let html='';
+  const cfg=getCfg();
+  items.forEach(({p,qte,pv,force})=>{
+    const sub=Math.round(pv*qte*100)/100; tot+=sub;
+    if(profil===2)pts+=p.pts*qte;
+    const isDrill=profil===2&&drillOn&&p.hasDrill;
+    const hasT2Active=codes.find(c=>c.type==='T2')&&p.hasT2;
+    html+=`<div class="CI">
+      <button class="CIRm" onclick="rmCart('${p.ref}')">✕</button>
+      <div class="CIRef">${p.ref}${isDrill?'<span class="Tag TagDrill" style="font-size:8px;margin-left:4px;">DRILL</span>':''}${hasT2Active?'<span class="Tag TagT2" style="font-size:8px;margin-left:4px;">T2</span>':''}${force?'<span class="PrixForceMark"> ✎</span>':''}</div>
+      <div class="CIDesc">${p.desig.substring(0,55)}${p.desig.length>55?'…':''}</div>
+      <div class="CIRow">
+        <div style="font-size:11px;color:var(--GM);">Qté: <strong>${qte}</strong> × ${fmt(pv)} €</div>
+        <div class="CIPrix">${fmt(sub)} €</div>
+      </div>
+      ${profil===2&&p.pts>0?`<div style="font-size:9px;color:var(--BL);font-weight:700;">+${p.pts*qte} pts</div>`:''}
+      ${hasT2Active&&p.t2Avantage?`<div style="font-size:9px;color:#856404;">T2: ${p.t2Avantage}</div>`:''}
+    </div>`;
+  });
+  body.innerHTML=html;
+  document.getElementById('cartTot').textContent=fmt(tot)+' €';
+  if(profil===2){
+    document.getElementById('cartPts').textContent=pts+' pts';
+    const seuil=cfg.SEUIL;
+    const nb=Math.floor(pts/seuil);
+    document.getElementById('cartTotLbl').textContent=`Total vente HT${nb>0?' ('+nb+' 🎁 vitrine)':''}`;
+  } else {
+    document.getElementById('cartTotLbl').textContent='Total HT';
+  }
+}
+
+function rmCart(ref){
+  delete cart[ref];
+  const inp=document.getElementById(qiid(ref)); if(inp){inp.value='';inp.classList.remove('HV');}
+  const row=document.getElementById('rw_'+ref.replace(/[^a-zA-Z0-9]/g,'_')); if(row)row.classList.remove('IC');
+  renderCart();
+}
+
+function clearCart(){
+  if(!confirm('Vider la sélection ?'))return;
+  Object.keys(cart).forEach(ref=>{
+    const inp=document.getElementById(qiid(ref));if(inp){inp.value='';inp.classList.remove('HV');}
+    const row=document.getElementById('rw_'+ref.replace(/[^a-zA-Z0-9]/g,'_'));if(row)row.classList.remove('IC');
+  });
+  cart={};renderCart();
+}
+
+// ── EMAIL ──
+function onEI(){
+  const v=document.getElementById('EI').value.toLowerCase();
+  const es=document.getElementById('ES');
+  if(v.length<2){es.style.display='none';return;}
+  const m=emailHist.filter(e=>e.toLowerCase().includes(v));
+  if(!m.length){es.style.display='none';return;}
+  es.innerHTML=m.map(e=>`<div class="ESItem" onmousedown="selE('${e}')">✉ ${e}</div>`).join('');
+  es.style.display='block';
+}
+function selE(e){document.getElementById('EI').value=e;document.getElementById('ES').style.display='none';}
+function hideES(){setTimeout(()=>{document.getElementById('ES').style.display='none';},200);}
+function saveE(e){if(!emailHist.includes(e)){emailHist.unshift(e);if(emailHist.length>20)emailHist=emailHist.slice(0,20);localStorage.setItem('tsd_em',JSON.stringify(emailHist));}}
+
+// ── MODAL ──
+function openModal(){
+  const items=Object.values(cart);
+  if(!items.length){toast('❌ Aucun produit.','err');return;}
+  const email=document.getElementById('EI').value.trim();
+  if(!email||!email.includes('@')){toast('❌ Email requis.','err');return;}
+  const ref=document.getElementById('RC').value.trim();
+  const tl=docType==='devis'?'Devis':'Commande';
+  const pl=['DISTRIBUTEUR','JT/TA','DRILLSHOW'][profil];
+  let tot=0,pts=0;
+  let sum=`<strong>${tl} — ${pl}</strong> → <strong>${email}</strong>`;
+  if(ref)sum+=`<br>Réf: <strong>${ref}</strong>`;
+  if(codes.length)sum+=`<br>Codes: ${codes.map(c=>c.code).join(', ')}`;
+  sum+=`<hr style="margin:7px 0;border:1px solid var(--GL);">`;
+  items.forEach(({p,qte,pv})=>{
+    const sub=Math.round(pv*qte*100)/100;tot+=sub;if(profil===2)pts+=p.pts*qte;
+    sum+=`• ${p.ref} — Qté ${qte} × ${fmt(pv)} € = <strong>${fmt(sub)} €</strong><br>`;
+  });
+  sum+=`<hr style="margin:7px 0;border:1px solid var(--GL);"><strong>TOTAL HT : ${fmt(tot)} €</strong>`;
+  if(pts>0)sum+=`<br>Points : <strong>${pts} pts</strong>`;
+  document.getElementById('MT').textContent=`Confirmer — ${tl}`;
+  document.getElementById('MS').textContent=`${pl} — ${email}`;
+  document.getElementById('MSm').innerHTML=sum;
+  document.getElementById('MOC').classList.add('O');
+}
+function closeMod(){document.getElementById('MOC').classList.remove('O');}
+
+// ── ENVOI ──
+function confirmSend(){
+  closeMod();
+  const items=Object.values(cart);
+  const email=document.getElementById('EI').value.trim();
+  const ref=document.getElementById('RC').value.trim();
+  const tl=docType==='devis'?'DEVIS':'COMMANDE';
+  const plLabel=['DISTRIBUTEUR','JT/TA','DRILLSHOW'][profil];
+  const plCode=['DISTRIBUTEUR','JTTA','DRILLSHOW'][profil];
+  const now=new Date();
+  const ds=now.toLocaleDateString('fr-FR');
+  const ts=now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  docNum++;localStorage.setItem('tsd_num',docNum);
+  const num=`${tl}-${plCode}-${docNum}`;
+  const cfg=getCfg();
+  let tot=0,pts=0;
+  items.forEach(({p,qte,pv})=>{tot+=Math.round(pv*qte*100)/100;if(profil===2)pts+=p.pts*qte;});
+  tot=Math.round(tot*100)/100;
+  const tva=Math.round(tot*cfg.TVA/100*100)/100;
+  const ttc=Math.round(tot*(1+cfg.TVA/100)*100)/100;
+  // Historique
+  saveE(email);
+  const entry={id:num,type:docType,profil:plLabel,date:ds,time:ts,email,ref,
+    user:CU.nom,items:items.length,total:tot,pts,codes:codes.map(c=>c.code),
+    lines:Object.values(cart).map(({p,qte,pv,force})=>({ref:p.ref,d:p.desig,qte,pv,force,
+      sub:Math.round(pv*qte*100)/100,pts:p.pts*qte}))};
+  docHist.unshift(entry);if(docHist.length>100)docHist=docHist.slice(0,100);
+  localStorage.setItem('tsd_h',JSON.stringify(docHist));
+  // Mail
+  const subj=encodeURIComponent(`DIAGER ${tl} ${num}${ref?' \u2014 '+ref:''}`);
+  const bdy=encodeURIComponent(`Bonjour,\n\nVeuillez trouver ci-joint le ${tl.toLowerCase()} DIAGER n\u00B0${num}.\nProfil : ${plLabel}\nR\u00E9f : ${ref||'N/A'}\nTotal HT : ${fmt(tot)} \u20AC\nTVA ${cfg.TVA}% : ${fmt(tva)} \u20AC\nTotal TTC : ${fmt(ttc)} \u20AC${pts>0?'\nPoints DrillShow : '+pts+' pts':''}\n\nCordialement,\n${CU.nom}`);
+  showMail(`mailto:${email}?subject=${subj}&body=${bdy}`,email,`DIAGER_${num}.pdf`);
+  toast('\u2705 Document enregistr\u00E9. Exportez le PDF puis joignez-le au mail.','ok');
+}
+
+function exportPDF(){
+  const items=Object.values(cart);
+  if(!items.length){toast('\u274C Panier vide.','err');return;}
+  const email=document.getElementById('EI').value.trim()||'—';
+  const ref=document.getElementById('RC').value.trim()||'—';
+  const tl=docType==='devis'?'DEVIS':'COMMANDE';
+  const plLabel=['DISTRIBUTEUR','JT/TA','DRILLSHOW'][profil];
+  const plCode=['DISTRIBUTEUR','JTTA','DRILLSHOW'][profil];
+  const now=new Date();
+  const ds=now.toLocaleDateString('fr-FR');
+  docNum++;localStorage.setItem('tsd_num',docNum);
+  const num=`${tl}-${plCode}-${docNum}`;
+  const fname=`DIAGER_${num}.pdf`;
+  const cfg=getCfg();
+  let tot=0,pts=0;
+  items.forEach(({p,qte,pv})=>{tot+=Math.round(pv*qte*100)/100;if(profil===2)pts+=p.pts*qte;});
+  tot=Math.round(tot*100)/100;
+  const tva=Math.round(tot*cfg.TVA/100*100)/100;
+  const ttc=Math.round(tot*(1+cfg.TVA/100)*100)/100;
+  const t2Code=codes.find(c=>c.type==='T2');
+  const t2Active=!!t2Code;
+  const t2Dates=t2Code?cfg.T2.debut+' \u2192 '+cfg.T2.fin:'';
+  const showDrill=profil===2&&drillOn;
+  const showV=profil>0;
+  const showPts=profil===2&&pts>0;
+  const seuil=cfg.SEUIL,nbC=Math.floor(pts/seuil);
+
+  // Construire les lignes du tableau
+  let lignes='';
+  items.forEach((item,i)=>{
+    const p=item.p,qte=item.qte,pv=item.pv;
+    const pa=getPA(p,qte);
+    const sub=Math.round(pv*qte*100)/100;
+    const hasT2A=t2Active&&p.hasT2;
+    const isDrill=profil===2&&drillOn&&p.hasDrill;
+    const st=hasT2A&&isDrill?'<span style="color:#856404;font-weight:700">T2+DRILL</span>':
+              hasT2A?'<span style="color:#856404;font-weight:700">T2</span>':
+              isDrill?'<span style="color:#1B6B2A;font-weight:700">DRILL</span>':'';
+    const bg=i%2===0?'#ffffff':'#f7f7f5';
+    const t2Info=hasT2A&&p.t2Avantage?`<br><i style="font-size:7pt;color:#856404">${p.t2Avantage}</i>`:'';
+    const fI=item.force?'<sup style="color:#E67E22">✎</sup>':'';
+    let pxCols='';
+    if(profil===0){
+      pxCols=`<td style="text-align:right">${fmt(pa)}&nbsp;€</td>`;
+    } else if(showDrill){
+      pxCols=`<td style="text-align:right;color:#666">${fmt(p.pAch)}&nbsp;€</td><td style="text-align:right;color:#1B6B2A;font-weight:700">${p.drillPA>0?fmt(p.drillPA)+'&nbsp;€':'—'}</td><td style="text-align:right;color:#1B6B2A;font-weight:700">${fmt(pv)}&nbsp;€${fI}</td>`;
+    } else {
+      pxCols=`<td style="text-align:right;color:#555">${fmt(pa)}&nbsp;€</td><td style="text-align:right;color:#1B6B2A;font-weight:700">${fmt(pv)}&nbsp;€${fI}</td>`;
+    }
+    lignes+=`<tr style="background:${bg}">
+      <td style="text-align:center;color:#999">${i+1}</td>
+      <td style="color:#1255A0;font-weight:700;white-space:nowrap">${p.ref}</td>
+      <td>${p.desig}${t2Info}</td>
+      <td style="text-align:center">${st}</td>
+      ${pxCols}
+      <td style="text-align:center;font-weight:700">${qte}</td>
+      <td style="text-align:right;font-weight:700">${fmt(sub)}&nbsp;€</td>
+      ${showPts?`<td style="text-align:center;color:#1255A0;font-weight:700">${p.pts>0?'+'+p.pts*qte:''}</td>`:''}
+    </tr>`;
+  });
+
+  let hdrPx='';
+  if(profil===0) hdrPx='<th style="text-align:right">Prix achat HT €</th>';
+  else if(showDrill) hdrPx='<th style="text-align:right">Achat std €</th><th style="text-align:right">Achat DRILL €</th><th style="text-align:right">Vente HT €</th>';
+  else hdrPx='<th style="text-align:right">Achat HT €</th><th style="text-align:right">Vente HT €</th>';
+
+  const logoTag=logoURL?`<img src="${logoURL}" style="max-height:11mm;max-width:32mm;object-fit:contain;display:block;margin-bottom:1mm;" onerror="this.style.display='none'">`:'';
+
+  const H=`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>${fname}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+@page{size:A4 portrait;margin:8mm 10mm 16mm 10mm;}
+body{font-family:Arial,sans-serif;font-size:8.5pt;color:#111;}
+.band{background:#111;display:flex;min-height:16mm;}
+.bg{flex:1;padding:3mm 4mm;display:flex;flex-direction:column;justify-content:center;}
+.logo-txt{font-size:18pt;font-weight:900;color:#F5C500;line-height:1;}
+.sub{font-size:6pt;color:#888;font-style:italic;margin-top:1mm;}
+.bd{background:#F5C500;padding:3mm 5mm;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;min-width:78mm;}
+.tit{font-size:11pt;font-weight:900;color:#111;}
+.pl{font-size:7.5pt;font-weight:700;color:#111;margin-top:1mm;}
+.bj{background:#F5C500;height:2px;}
+.inf{display:flex;gap:5mm;padding:3mm 0;border-bottom:.5px solid #ddd;}
+.ic{flex:1;}
+.ir{font-size:7.5pt;margin-bottom:1.5mm;display:flex;gap:2mm;}
+.il{font-weight:700;color:#555;min-width:24mm;}
+.sj{background:#F5C500;height:2px;margin:2mm 0 0;}
+table{width:100%;border-collapse:collapse;font-size:7.5pt;}
+thead tr{background:#111;color:#fff;}
+th{padding:2mm;font-weight:700;font-size:7pt;border:.3px solid #444;text-align:left;}
+td{padding:1.8mm 2mm;border:.3px solid #ccc;vertical-align:middle;}
+tr:last-child td{border-bottom:1px solid #111;}
+.tots{display:flex;justify-content:flex-end;margin-top:3mm;}
+.tt{border-collapse:collapse;min-width:70mm;}
+.tt td{padding:2mm 3mm;font-size:8.5pt;border:.3px solid #ccc;}
+.tl{font-weight:700;color:#555;text-align:right;background:#f0f0f0;}
+.tv{text-align:right;font-weight:700;min-width:24mm;}
+.ttcl{background:#F5C500;border:1px solid #111;font-weight:900;text-align:right;font-size:9.5pt;}
+.ttcv{background:#F5C500;border:1px solid #111;font-weight:900;text-align:right;font-size:11pt;}
+.t2b{margin-top:2mm;padding:2mm 3mm;background:#FFF9DC;border:1px solid #FFE082;font-size:7pt;color:#856404;}
+.ptb{margin-top:2mm;padding:2.5mm 3mm;background:#E8EAF6;border:1px solid #9FA8DA;font-size:7.5pt;}
+.fj{background:#F5C500;height:2px;margin-top:5mm;}
+.ft{background:#111;color:#888;font-size:6pt;text-align:center;padding:2.5mm;}
+.pbtn{position:fixed;top:8px;right:8px;background:#F5C500;border:none;padding:10px 20px;
+      font-size:13px;font-weight:700;cursor:pointer;z-index:9999;border-radius:2px;}
+@media print{.pbtn{display:none!important}}
+</style></head><body>
+<button class="pbtn" onclick="window.print()">🖨️ Sauvegarder en PDF</button>
+<div class="band">
+  <div class="bg">${logoTag}<div class="logo-txt">DIAGER®</div><div class="sub">DRILLING · SCREW BITS · SAWING</div></div>
+  <div class="bd"><div class="tit">CONFIRMATION DE ${tl}</div><div class="pl">Profil : ${plLabel}</div></div>
+</div>
+<div class="bj"></div>
+<div class="inf">
+  <div class="ic">
+    <div class="ir"><span class="il">Etabli par :</span><b>${CU.nom}</b></div>
+    <div class="ir"><span class="il">Date :</span>${ds}</div>
+    <div class="ir"><span class="il">Réf / Chantier :</span><i>${ref||'—'}</i></div>
+  </div>
+  <div class="ic">
+    <div class="ir"><span class="il">N° document :</span><b>${num}</b></div>
+    <div class="ir"><span class="il">Destinataire :</span>${email}</div>
+    <div class="ir"><span class="il">Codes promo :</span><b style="color:#856404">${codes.length?codes.map(c=>c.code).join(', '):'Aucun'}</b></div>
+  </div>
+</div>
+<div class="sj"></div>
+<table>
+  <thead><tr>
+    <th style="width:4%;text-align:center">N°</th>
+    <th style="width:13%">Référence</th>
+    <th>Désignation</th>
+    <th style="width:9%;text-align:center">Statut</th>
+    ${hdrPx}
+    <th style="width:6%;text-align:center">Qté</th>
+    <th style="width:11%;text-align:right">Total HT €</th>
+    ${showPts?'<th style="width:6%;text-align:center">Pts</th>':''}
+  </tr></thead>
+  <tbody>${lignes}</tbody>
+</table>
+<div class="tots"><table class="tt">
+  <tr><td class="tl">HT Produits</td><td class="tv">${fmt(tot)} €</td></tr>
+  <tr><td class="tl">TVA ${cfg.TVA} %</td><td class="tv" style="color:#888;font-weight:400">${fmt(tva)} €</td></tr>
+  <tr><td class="ttcl">MONTANT TTC</td><td class="ttcv">${fmt(ttc)} €</td></tr>
+</table></div>
+${t2Active&&t2Dates?`<div class="t2b">🏷️ <b>Offre T2 2026</b> — Validité : ${t2Dates}</div>`:''}
+${showPts?`<div class="ptb"><b style="color:#1255A0">🎯 Points fidélité DrillShow : ${pts} pts</b><br>
+<span style="font-size:7pt">Seuil cadeau vitrine : ${seuil} pts${nbC>0?' — <b style="color:#1B6B2A">🎁 '+nbC+' cadeau'+(nbC>1?'x':'')+'</b>':''}</span></div>`:''}
+<div style="margin-top:2mm;font-size:7pt;color:#999">Nb réf. : ${items.length} | STANDARD ROUTIER | PORT PAYÉ</div>
+<div class="fj"></div>
+<div class="ft">DIAGER — Rue Henri Moissan — ZI — BP 90149 — 39802 POLIGNY cedex 2 — FRANCE — Tél. +33 (0)3 84 73 74 75${cfg.MENTIONS?'<br>'+cfg.MENTIONS.substring(0,150):''}</div>
+<script>
+// Déclencher impression auto après 800ms
+window.addEventListener('load',function(){
+  setTimeout(function(){ window.print(); },800);
+});
+</script>
+</body></html>`;
+
+  // Méthode 1 : téléchargement direct via <a>
+  try{
+    const blob=new Blob([H],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=fname.replace('.pdf','.html');
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+
+    // Ouvrir aussi dans un nouvel onglet pour imprimer en PDF
+    const win=window.open(url,'_blank');
+    toast('\u2705 Page ouverte — cliquez "Sauvegarder en PDF" (ou Ctrl+P)','ok');
+  }catch(e){
+    toast('\u274C Erreur : '+e.message,'err');
+  }
+}
+
+
+// ── EXPORT EXCEL ──
+function exportXL(){
+  const items=Object.values(cart);
+  if(!items.length){toast('❌ Panier vide.','err');return;}
+  const pl=['DISTRIBUTEUR','JT-TA','DRILLSHOW'][profil];
+  const tl=docType==='devis'?'DEVIS':'COMMANDE';
+  const now=new Date();
+  const ds=now.toLocaleDateString('fr-FR');
+  const cfg=getCfg();
+  let tot=0,pts=0;
+
+  // En-tête
+  const aoa=[
+    [`DIAGER — ${tl} ${pl}`,`Date: ${ds}`,`Par: ${CU.nom}`],
+    [`Email: ${document.getElementById('EI').value.trim()||'—'}`,
+     `Réf: ${document.getElementById('RC').value.trim()||'—'}`,
+     `Codes: ${codes.length?codes.map(c=>c.code).join(', '):'Aucun'}`],
+    [],
+  ];
+
+  // Headers colonnes selon profil
+  let headers=['N°','Référence','Désignation','Famille','Statut'];
+  if(profil===0){
+    headers.push('Prix achat HT €','Qté','Total HT €');
+  } else if(profil===1){
+    headers.push('Prix achat HT €','Prix vente HT €','Prix forcé','Qté','Total vente HT €');
+  } else {
+    headers.push('Prix achat std €','Prix achat DRILL €','Prix vente HT €','Prix forcé','Qté','Total vente HT €','Points');
+  }
+  aoa.push(headers);
+
+  // Lignes
+  items.forEach((item,i)=>{
+    const p=item.p,qte=item.qte,pv=item.pv;
+    const pa=getPA(p,qte);
+    const sub=Math.round(pv*qte*100)/100; tot+=sub;
+    if(profil===2) pts+=p.pts*qte;
+    const hasT2A=codes.find(c=>c.type==='T2')&&p.hasT2;
+    const isDrill=profil===2&&drillOn&&p.hasDrill;
+    const statut=(hasT2A?'T2 ':'')||(isDrill?'DRILL':'') || '—';
+    let row=[i+1,p.ref,p.desig,p.famille,statut];
+    if(profil===0){
+      row.push(pa,qte,sub);
+    } else if(profil===1){
+      row.push(pa,pv,item.force?'OUI':'non',qte,sub);
+    } else {
+      row.push(p.pAch,p.drillPA>0?p.drillPA:'—',pv,item.force?'OUI':'non',qte,sub,p.pts>0?p.pts*qte:'');
+    }
+    aoa.push(row);
+  });
+
+  // Totaux
+  const tva=Math.round(tot*cfg.TVA/100*100)/100;
+  const ttc=Math.round(tot*(1+cfg.TVA/100)*100)/100;
+  aoa.push([]);
+  aoa.push(['','','','','',`HT: ${fmt(tot)} €`]);
+  aoa.push(['','','','','',`TVA ${cfg.TVA}%: ${fmt(tva)} €`]);
+  aoa.push(['','','','','',`TTC: ${fmt(ttc)} €`]);
+  if(profil===2&&pts>0) aoa.push(['','','','','',`Points fidélité: ${pts} pts`]);
+
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols']=[{wch:4},{wch:16},{wch:45},{wch:20},{wch:10},
+    {wch:13},{wch:13},{wch:10},{wch:6},{wch:13},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws,tl);
+  XLSX.writeFile(wb,`DIAGER_${tl}_${pl}_${now.getFullYear()}${('0'+(now.getMonth()+1)).slice(-2)}${('0'+now.getDate()).slice(-2)}.xlsx`);
+  toast('✅ Export Excel téléchargé !','ok');
+}
+
+// ── TABS ──
+function showTab(t){
+  [0,1,2].forEach(i=>{
+    const tb=document.getElementById('T'+i);if(tb)tb.classList.toggle('active',i===t);
+    const v=document.getElementById('V'+i);if(v)v.classList.toggle('A',i===t);
+  });
+  if(t===1)renderHist();
+  if(t===2)renderAdmin();
+}
+
+// ── HISTORIQUE ──
+function renderHist(){
+  const el=document.getElementById('HC');
+  if(!docHist.length){el.innerHTML='<p style="color:var(--GM)">Aucun document.</p>';return;}
+  let html=`<table class="HTbl"><thead><tr>
+    <th>N° Document</th><th>Profil</th><th>Type</th><th>Date</th>
+    <th>Destinataire</th><th>Lignes</th><th>Total HT</th><th>Pts</th><th></th>
+  </tr></thead><tbody>`;
+  docHist.forEach((h,i)=>{
+    html+=`<tr>
+      <td style="font-family:'Barlow Condensed',sans-serif;font-weight:700;">${h.id}</td>
+      <td style="font-size:10px;font-weight:700;">${h.profil||'—'}</td>
+      <td><span class="HBdg ${h.type}">${h.type}</span></td>
+      <td>${h.date} ${h.time}</td>
+      <td>${h.email}</td>
+      <td style="text-align:center">${h.items}</td>
+      <td style="text-align:right;font-weight:700;color:var(--V)">${fmt(h.total)} €</td>
+      <td style="text-align:center;color:var(--BL);font-weight:700">${h.pts||0}</td>
+      <td><button class="BDel" onclick="delH(${i})">🗑</button></td>
+    </tr>`;
+  });
+  el.innerHTML=html+'</tbody></table>';
+}
+
+function delH(i){
+  if(!confirm('Supprimer ?'))return;
+  docHist.splice(i,1);localStorage.setItem('tsd_h',JSON.stringify(docHist));
+  renderHist();toast('🗑 Supprimé.','ok');
+}
+
+// ── ADMIN ──
+function renderAdmin(){
+  const el=document.getElementById('adminContent');
+  const cfg=getCfg();
+  let h=`
+  <div class="ASection">
+    <div class="ASH">👥 Utilisateurs</div>
+    <table class="UTbl"><thead><tr><th>Login</th><th>Nom</th><th>Rôle</th><th>Mot de passe</th></tr></thead><tbody>`;
+  for(const [l,u] of Object.entries(USERS)){
+    h+=`<tr>
+      <td style="font-family:monospace;font-weight:700">${l}</td>
+      <td>${u.nom}</td>
+      <td><span class="RBdg ${u.role}">${u.role}</span></td>
+      <td><span class="PwdC" onclick="navigator.clipboard.writeText('${u.p}').then(()=>toast('📋 Copié !','ok'))">${u.p}</span></td>
+    </tr>`;
+  }
+  h+=`</tbody></table>
+    <button class="BA" onclick="expUsers()">📥 Exporter accès</button>
+  </div>
+
+  <div class="ASection">
+    <div class="ASH">⚙️ Configuration</div>
+
+    <div style="font-size:11px;font-weight:700;color:var(--GM);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Offre T2 2026</div>
+    <div class="CfgRow">
+      <div class="CfgField"><label>Date début</label><input id="cT2d" type="date" value="${cfg.T2.debut}" style="width:140px"></div>
+      <div class="CfgField"><label>Date fin</label><input id="cT2f" type="date" value="${cfg.T2.fin}" style="width:140px"></div>
+      <div class="CfgField"><label>Label</label><input id="cT2l" value="${cfg.T2.label}" style="width:200px"></div>
+    </div>
+    <br>
+    <div style="font-size:11px;font-weight:700;color:var(--GM);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Codes implantation</div>
+    <div class="CfgRow">
+      <div class="CfgField"><label>IMPLANT5 taux %</label><input id="cI5" type="number" value="${cfg.IMPLANT5.taux}" style="width:80px"></div>
+      <div class="CfgField"><label>IMPLANT10 taux %</label><input id="cI10" type="number" value="${cfg.IMPLANT10.taux}" style="width:80px"></div>
+    </div>
+    <br>
+    <div class="CfgRow">
+      <div class="CfgField"><label>Code DRILL</label><input id="cDrill" value="${cfg.DRILL}" style="width:130px;letter-spacing:2px;font-family:monospace"></div>
+      <div class="CfgField"><label>Seuil points cadeau</label><input id="cSeuil" type="number" value="${cfg.SEUIL}" style="width:90px"></div>
+      <div class="CfgField"><label>TVA %</label><input id="cTVA" type="number" value="${cfg.TVA}" style="width:70px"></div>
+    </div>
+    <br>
+    <br>
+    <div style="font-size:11px;font-weight:700;color:var(--GM);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Mentions légales (bas de page PDF)</div>
+    <textarea id="cMentions" style="width:100%;border:2px solid var(--GL);padding:8px;font-family:'Barlow',sans-serif;font-size:11px;height:70px;outline:none;resize:vertical;background:var(--B);">${cfg.MENTIONS||''}</textarea>
+    <br><br>
+    <button class="BA" onclick="saveCfg()">💾 Enregistrer</button>
+  </div>`;
+  el.innerHTML=h;
+}
+
+function saveCfg(){
+  const cfg=getCfg();
+  cfg.T2.debut=document.getElementById('cT2d').value;
+  cfg.T2.fin=document.getElementById('cT2f').value;
+  cfg.T2.label=document.getElementById('cT2l').value;
+  cfg.IMPLANT5.taux=parseFloat(document.getElementById('cI5').value)||5;
+  cfg.IMPLANT10.taux=parseFloat(document.getElementById('cI10').value)||10;
+  cfg.DRILL=document.getElementById('cDrill').value.trim();
+  cfg.SEUIL=parseInt(document.getElementById('cSeuil').value)||500;
+  cfg.TVA=parseFloat(document.getElementById('cTVA').value)||20;
+  cfg.MENTIONS=document.getElementById('cMentions').value;
+  localStorage.setItem('tsd_cfg',JSON.stringify(cfg));
+  toast('✅ Configuration sauvegardée !','ok');
+}
+
+function expUsers(){
+  const wb=XLSX.utils.book_new();
+  const data=[['Login','Nom','Rôle','Mot de passe']];
+  for(const [l,u] of Object.entries(USERS))data.push([l,u.nom,u.role,u.p]);
+  const ws=XLSX.utils.aoa_to_sheet(data);
+  ws['!cols']=[{wch:14},{wch:20},{wch:12},{wch:18}];
+  XLSX.utils.book_append_sheet(wb,ws,'Accès');
+  XLSX.writeFile(wb,'TeamSudCoDIAG_Acces.xlsx');
+}
+
+// ── TOAST ──
+function toast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=type?'S '+type:'S';
+  clearTimeout(t._t);t._t=setTimeout(()=>{t.className=type;},4000);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('LU').focus();});
+</script>
+</body>
+</html>
