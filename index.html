@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TeamSudCoDIAG — DIAGER 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="catalogue.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --J:#F5C500;--JD:#C9A000;--N:#111111;--W:#ffffff;--B:#F6F6F4;
+  --GL:#E4E4E4;--GM:#888888;--V:#1B6B2A;--BL:#1255A0;
+  --R:#C0392B;--OR:#C17900;--DR:#1B5E20;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--B);color:var(--N);
+  height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* ── LOGIN ── */
+#LS{position:fixed;inset:0;background:linear-gradient(160deg,#070707 0%,#1a1a1a 100%);
+  display:flex;align-items:center;justify-content:center;z-index:999;}
+.lb{background:#141414;border:2px solid var(--J);padding:48px 42px;width:370px;max-width:92vw;}
+.l-sub{font-size:9px;color:#3a3a3a;letter-spacing:4px;text-transform:uppercase;margin-bottom:4px;}
+.l-title{font-size:42px;font-weight:900;color:var(--J);letter-spacing:3px;line-height:1;}
+.l-desc{font-size:9px;color:#3a3a3a;letter-spacing:1px;text-transform:uppercase;
+  margin:10px 0 28px;padding-top:10px;border-top:1px solid #222;}
+.l-lbl{display:block;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:2px;color:#444;margin-bottom:5px;}
+.l-inp{width:100%;background:#1c1c1c;border:1px solid #272727;color:#fff;
+  padding:13px 14px;font-size:14px;margin-bottom:14px;outline:none;}
+.l-inp:focus{border-color:var(--J);}
+.l-btn{width:100%;background:var(--J);color:var(--N);border:none;padding:14px;
+  font-size:16px;font-weight:900;letter-spacing:3px;cursor:pointer;transition:.15s;}
+.l-btn:hover{background:var(--JD);}
+.l-err{color:var(--R);font-size:11px;margin-top:10px;min-height:16px;text-align:center;}
+
+/* ── APP ── */
+#APP{display:none;flex-direction:column;height:100vh;}
+#APP.on{display:flex;}
+
+/* ── HEADER ── */
+.hdr{background:var(--N);border-bottom:3px solid var(--J);height:52px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex-shrink:0;}
+.h-logo{font-size:22px;font-weight:900;color:var(--J);letter-spacing:2px;}
+.h-sub{font-size:8px;color:#3a3a3a;letter-spacing:3px;margin-bottom:2px;}
+.h-right{display:flex;align-items:center;gap:12px;}
+.h-user{font-size:11px;color:#555;}.h-user b{color:var(--J);}
+.h-lo{background:none;border:1px solid #252525;color:#444;padding:4px 10px;
+  font-size:10px;cursor:pointer;letter-spacing:.5px;}
+.h-lo:hover{border-color:var(--R);color:var(--R);}
+
+/* ── PROFIL TABS ── */
+.tabs{background:#0c0c0c;display:flex;flex-shrink:0;border-bottom:2px solid #181818;}
+.tab{flex:1;padding:10px 8px;border:none;background:transparent;cursor:pointer;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  color:#2a2a2a;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;}
+.tab.p0.on{color:var(--BL);border-color:var(--BL);background:rgba(18,85,160,.06);}
+.tab.p1.on{color:var(--J);border-color:var(--J);background:rgba(245,197,0,.06);}
+
+/* ── BARRE PROMO AUTO ── */
+.promo-bar{background:#1a1200;border-bottom:2px solid var(--J);padding:6px 18px;
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.promo-badge{background:var(--J);color:var(--N);font-size:10px;font-weight:900;
+  padding:3px 10px;letter-spacing:.5px;}
+.promo-txt{font-size:10px;color:#856404;font-weight:700;}
+.promo-note{font-size:9px;color:#555;font-style:italic;}
+
+/* ── BARRE POINTS DRILLSHOW ── */
+.pts-bar{background:linear-gradient(135deg,#0a180a,#0e240e);
+  border-bottom:2px solid var(--J);padding:7px 18px;
+  display:none;align-items:center;gap:18px;flex-shrink:0;}
+.pts-bar.on{display:flex;}
+.pts-big{font-size:28px;font-weight:900;color:var(--J);line-height:1;}
+.pts-lbl{font-size:8px;color:#3a5a3a;text-transform:uppercase;letter-spacing:2px;}
+.pts-gift{font-size:13px;font-weight:700;color:#4CAF50;}
+.pts-sep{width:1px;height:36px;background:#1a2a1a;}
+
+/* ── BARRE IMPLANT (optionnel) ── */
+.imp-bar{background:#FFFBEE;border-bottom:1px solid #FFE082;padding:5px 18px;
+  display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.imp-inp{border:1.5px solid #FFE082;padding:4px 9px;font-size:11px;
+  background:#fff;outline:none;text-transform:uppercase;width:130px;}
+.imp-inp:focus{border-color:var(--J);}
+.imp-btn{background:var(--J);border:none;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;}
+.imp-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#856404;}
+.imp-pill{background:var(--N);color:var(--J);padding:2px 8px;font-size:10px;
+  font-weight:700;display:inline-flex;align-items:center;gap:4px;}
+.imp-pill button{background:none;border:none;cursor:pointer;color:var(--J);font-size:11px;}
+
+/* ── TOOLBAR ── */
+.toolbar{background:var(--W);border-bottom:1px solid var(--GL);
+  padding:6px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;}
+.search-wrap{position:relative;flex:1;min-width:160px;max-width:320px;}
+.search-wrap input{width:100%;border:1.5px solid var(--GL);padding:6px 10px 6px 28px;
+  font-size:12px;outline:none;background:var(--B);}
+.search-wrap input:focus{border-color:var(--J);}
+.search-ico{position:absolute;left:8px;top:50%;transform:translateY(-50%);
+  color:var(--GM);font-size:12px;pointer-events:none;}
+.fsel{border:1.5px solid var(--GL);padding:5px 8px;font-size:11px;
+  background:var(--B);outline:none;cursor:pointer;max-width:180px;}
+.fsel:focus{border-color:var(--J);}
+.count-badge{background:var(--J);color:var(--N);font-weight:900;font-size:9px;
+  padding:2px 7px;border-radius:20px;}
+
+/* ── LAYOUT ── */
+.body-wrap{display:flex;flex:1;overflow:hidden;}
+.cat-panel{flex:1;overflow-y:auto;overflow-x:hidden;}
+
+/* ── TABLE CATALOGUE ── */
+table.ct{width:100%;border-collapse:collapse;font-size:11px;}
+table.ct thead{background:var(--N);position:sticky;top:0;z-index:10;}
+table.ct th{padding:8px 10px;text-align:left;font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;color:#ccc;white-space:nowrap;}
+table.ct th.r,table.ct td.r{text-align:right;}
+table.ct th.c,table.ct td.c{text-align:center;}
+table.ct tbody tr{border-bottom:1px solid var(--GL);}
+table.ct tbody tr.even{background:#fff;}
+table.ct tbody tr.odd{background:#F8F8F6;}
+table.ct tbody tr:hover{background:#FFFCEE !important;}
+table.ct tbody tr.in-cart{background:#FFF9DC !important;}
+table.ct td{padding:5px 10px;vertical-align:middle;}
+.ref-cell{font-weight:700;font-size:12px;color:var(--BL);font-family:monospace;}
+.desc-cell{font-size:10px;line-height:1.35;max-width:240px;}
+.fam-cell{font-size:9px;color:var(--GM);}
+.tag{display:inline-block;padding:1px 5px;font-size:7px;font-weight:700;
+  vertical-align:middle;margin-left:2px;border-radius:2px;}
+.tag-t2{background:#FFF3C0;color:#856404;border:1px solid #F0D060;}
+.tag-ds{background:#E8F5E9;color:var(--DR);border:1px solid #B8DFC0;}
+.tag-pts{background:#E8F5E9;color:var(--V);}
+.pal-badge{font-size:7px;font-weight:700;padding:1px 5px;border-radius:10px;margin-left:3px;}
+.pal-q1{background:#E3F2FD;color:var(--BL);}
+.pal-q2{background:#E8F5E9;color:var(--V);}
+.pal-q3{background:#FFF3E0;color:var(--OR);}
+.pal-dr{background:#C8E6C9;color:var(--DR);}
+.pal-t2{background:#FFF3C0;color:#856404;}
+.grp-info{font-size:8px;color:#856404;margin-top:2px;}
+.grp-ok{font-size:8px;color:var(--V);font-weight:700;margin-top:2px;}
+
+/* ── QTÉ ── */
+.qty-wrap{display:flex;align-items:center;gap:3px;}
+.qty-btn{width:22px;height:22px;background:var(--GL);border:none;cursor:pointer;
+  font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;
+  border-radius:3px;transition:.1s;}
+.qty-btn:hover{background:var(--J);}
+.qty-inp{width:46px;text-align:center;border:1.5px solid var(--GL);padding:3px;
+  font-size:12px;font-weight:600;outline:none;border-radius:2px;}
+.qty-inp:focus,.qty-inp.active{border-color:var(--J);background:#FFFBEE;}
+
+/* ── PANIER ── */
+.cart{width:320px;border-left:2px solid var(--GL);display:flex;
+  flex-direction:column;background:var(--W);flex-shrink:0;}
+.cart-hdr{background:var(--N);color:var(--J);padding:10px 14px;font-size:14px;
+  font-weight:900;letter-spacing:2px;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.cart-cnt{background:var(--J);color:var(--N);font-size:9px;font-weight:900;
+  padding:2px 7px;border-radius:20px;}
+.cart-body{flex:1;overflow-y:auto;padding:8px;}
+.cart-empty{text-align:center;color:var(--GM);padding:24px 12px;
+  font-size:11px;line-height:2.4;}
+.ci{border:1px solid var(--GL);padding:7px 9px;margin-bottom:5px;
+  position:relative;background:var(--B);border-radius:2px;}
+.ci:hover{border-color:var(--J);}
+.ci-ref{font-weight:700;font-size:12px;color:var(--BL);font-family:monospace;}
+.ci-desc{font-size:9px;color:var(--GM);margin:2px 0 4px;line-height:1.3;}
+.ci-row{display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.ci-prix{font-weight:800;color:var(--V);font-size:13px;}
+.ci-pa{font-size:9px;color:var(--GM);margin-top:2px;}
+.ci-rm{position:absolute;top:5px;right:6px;background:none;border:none;
+  color:var(--GM);cursor:pointer;font-size:12px;line-height:1;}
+.ci-rm:hover{color:var(--R);}
+.ci-promo{font-size:8px;color:#856404;font-style:italic;margin-top:2px;}
+
+/* ── PIED PANIER ── */
+.cart-foot{border-top:2px solid var(--GL);padding:10px;flex-shrink:0;}
+.tot-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.tot-lbl{font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--GM);}
+.tot-amt{font-size:18px;font-weight:900;color:var(--V);}
+.pts-cart{font-size:14px;font-weight:900;color:#2E7D32;}
+.fld{margin-bottom:6px;}
+.fld label{display:block;font-size:8px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--GM);margin-bottom:3px;}
+.fld input{width:100%;border:1.5px solid var(--GL);padding:6px 8px;
+  font-size:11px;outline:none;background:var(--B);}
+.fld input:focus{border-color:var(--J);}
+.btn-vider{width:100%;background:none;border:1px solid var(--GL);color:var(--GM);
+  padding:6px;font-size:10px;cursor:pointer;margin-bottom:6px;}
+.btn-vider:hover{border-color:var(--R);color:var(--R);}
+.btn-xl{width:100%;background:var(--J);color:var(--N);border:none;
+  padding:12px;font-size:15px;font-weight:900;letter-spacing:2px;cursor:pointer;
+  margin-bottom:5px;transition:.15s;}
+.btn-xl:hover{background:var(--JD);}
+.btn-pdf{width:100%;background:var(--BL);color:#fff;border:none;
+  padding:9px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;}
+.btn-pdf:hover{background:#0d3f80;}
+
+/* ── PAGINATION ── */
+.pg-info{padding:5px 12px;font-size:9px;color:var(--GM);
+  background:var(--GL);text-align:center;flex-shrink:0;}
+.more-btn{display:block;width:100%;padding:8px;background:var(--GL);border:none;
+  cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--GM);}
+.more-btn:hover{background:var(--J);color:var(--N);}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:18px;right:18px;background:var(--N);color:#fff;
+  padding:10px 16px;font-size:11px;font-weight:700;
+  box-shadow:0 4px 24px rgba(0,0,0,.35);border-left:4px solid var(--J);
+  z-index:9999;transform:translateY(80px);opacity:0;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);max-width:280px;}
+#toast.on{transform:translateY(0);opacity:1;}
+#toast.ok{border-left-color:var(--V);}
+#toast.err{border-left-color:var(--R);}
+
+mark{background:#FFF3C0;font-weight:700;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="LS">
+  <div class="lb">
+    <div class="l-sub">TeamSudCo</div>
+    <div class="l-title">DIAG</div>
+    <div class="l-desc">Bons de commande DIAGER 2026 — Accès privé</div>
+    <label class="l-lbl">Identifiant</label>
+    <input class="l-inp" id="LU" type="text" placeholder="identifiant" autocomplete="username">
+    <label class="l-lbl">Mot de passe</label>
+    <input class="l-inp" id="LP" type="password" placeholder="••••••••" autocomplete="current-password">
+    <button class="l-btn" onclick="login()">CONNEXION →</button>
+    <div class="l-err" id="L-ERR"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="APP">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div><div class="h-sub">TeamSudCo</div><div class="h-logo">DIAG</div></div>
+    <div class="h-right">
+      <span class="h-user">👤 <b id="U-NOM"></b></span>
+      <button class="h-lo" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <!-- Profil tabs -->
+  <div class="tabs">
+    <button class="tab p0 on" id="tab0" onclick="setProfil(0)">📦 Distributeur</button>
+    <button class="tab p1"    id="tab1" onclick="setProfil(1)">🎯 DrillShow</button>
+  </div>
+
+  <!-- Barre promo auto -->
+  <div class="promo-bar" id="promoBar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="promo-badge" id="promoBadge">T2</div>
+      <div class="promo-txt" id="promoTxt">Opération T2 2026 active</div>
+    </div>
+    <div class="promo-note" id="promoNote">Prix promos appliqués automatiquement</div>
+  </div>
+
+  <!-- Compteur points DrillShow -->
+  <div class="pts-bar" id="ptsBar">
+    <div>
+      <div class="pts-lbl">Points fidélité</div>
+      <div class="pts-big" id="PTS-BIG">0 pts</div>
+    </div>
+    <div class="pts-sep"></div>
+    <div>
+      <div class="pts-gift" id="PTS-GIFT"></div>
+      <div style="font-size:9px;color:#3a5a3a;" id="PTS-SEUIL"></div>
+    </div>
+  </div>
+
+  <!-- Remise IMPLANT optionnelle -->
+  <div class="imp-bar">
+    <span class="imp-lbl">Code implantation</span>
+    <input class="imp-inp" id="IMP-INP" placeholder="IMPLANT5 / IMPLANT10"
+      onkeydown="if(event.key==='Enter')applyImplant()">
+    <button class="imp-btn" onclick="applyImplant()">Appliquer</button>
+    <div id="IMP-PILL"></div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-ico">🔍</span>
+      <input type="text" id="SEARCH" placeholder="Référence ou désignation..." oninput="filter()">
+    </div>
+    <select class="fsel" id="FAM-SEL" onchange="filter()">
+      <option value="">Toutes familles</option>
+    </select>
+    <select class="fsel" id="PROMO-SEL" onchange="filter()">
+      <option value="">Tous les produits</option>
+      <option value="promo">Promos du trimestre</option>
+      <option value="drill">DrillShow uniquement</option>
+    </select>
+    <span class="count-badge" id="COUNT">0</span>
+    <span style="font-size:9px;color:var(--GM)">réf.</span>
+  </div>
+
+  <!-- Corps -->
+  <div class="body-wrap">
+    <!-- Catalogue -->
+    <div class="cat-panel">
+      <table class="ct">
+        <thead id="TH"></thead>
+        <tbody id="TB"></tbody>
+      </table>
+      <div class="pg-info" id="PG-INFO"></div>
+      <button class="more-btn" id="MORE-BTN" onclick="loadMore()" style="display:none">
+        ▼ Afficher plus de produits
+      </button>
+    </div>
+
+    <!-- Panier -->
+    <div class="cart">
+      <div class="cart-hdr">
+        <span id="CART-LBL">BON DE COMMANDE</span>
+        <span class="cart-cnt" id="CART-CNT">0</span>
+      </div>
+      <div class="cart-body" id="CART-BODY">
+        <div class="cart-empty">📋<br><br>Ajoutez des produits<br>depuis le catalogue.</div>
+      </div>
+      <div class="cart-foot">
+        <div id="PTS-CART-ROW" style="display:none;" class="tot-row">
+          <span class="tot-lbl" style="color:#2E7D32">🏆 Points</span>
+          <span class="pts-cart" id="CART-PTS">0</span>
+        </div>
+        <div class="tot-row">
+          <span class="tot-lbl">Total HT</span>
+          <span class="tot-amt" id="CART-TOT">0,00 €</span>
+        </div>
+        <div class="fld">
+          <label>Destinataire / Email</label>
+          <input type="text" id="DEST" placeholder="distributeur@email.fr">
+        </div>
+        <div class="fld">
+          <label>Réf. chantier / affaire</label>
+          <input type="text" id="REF-CH" placeholder="Chantier, n° affaire...">
+        </div>
+        <div class="fld">
+          <label>N° de commande</label>
+          <input type="text" id="NUM-CMD" placeholder="CMD-001">
+        </div>
+        <button class="btn-vider" onclick="clearCart()">🗑 Vider</button>
+        <button class="btn-xl" onclick="exportExcel()">📥 EXPORTER EN EXCEL</button>
+        <button class="btn-pdf" onclick="exportPDF()">📄 Exporter PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ================================================================
+// DONNÉES
+// ================================================================
+var CAT = (typeof CAT_DEFAULT !== 'undefined') ? CAT_DEFAULT : [];
+
+var USERS = {
+  "asadowski": {"p":"ASKIs@op3131","nom":"A. Sadowski"},
+  "ydechaud":  {"p":"Hhi#Qeht1O", "nom":"Y. Dechaud"},
+  "lclaustrat":{"p":"n@!5SgvgwK", "nom":"L. Claustrat"},
+  "prorep":    {"p":"jZ2G3BzPc2", "nom":"Pro Rep"},
+  "jmarie":    {"p":"8OVWL9oz@!","nom":"J. Marie"},
+  "kassoi":    {"p":"1!lRr7cgcz", "nom":"K. Assoi"}
+};
+
+var CFG = {
+  T1:{debut:'2026-01-01',fin:'2026-03-31'},
+  T2:{debut:'2026-04-01',fin:'2026-07-31'},
+  T3:{debut:'2026-08-01',fin:'2026-12-31'},
+  IMPLANT5:{taux:5}, IMPLANT10:{taux:10},
+  SEUIL:500, TVA:20,
+  MENTIONS:'SAS DIAGER — RCS LONS LE SAUNIER B 408 484 277 — TVA FR 45 408 484 277'
+};
+
+// ================================================================
+// STATE
+// ================================================================
+var CU = null;
+var profil = 0;   // 0=Distributeur, 1=DrillShow
+var cart = {};
+var filtered = [], displayed = 0, PG = 60;
+var implantTaux = 0;
+var docNum = parseInt(localStorage.getItem('tsd_num')||'1000');
+
+// ================================================================
+// PROMO AUTOMATIQUE
+// ================================================================
+function getActivePromo() {
+  var now = new Date();
+  for (var t of ['T1','T2','T3']) {
+    var d = new Date(CFG[t].debut), f = new Date(CFG[t].fin);
+    f.setHours(23,59,59);
+    if (now >= d && now <= f) return t;
+  }
+  return null;
+}
+
+var PROMO = getActivePromo(); // ex: 'T2'
+
+function updatePromoBar() {
+  var bar = document.getElementById('promoBar');
+  if (PROMO) {
+    document.getElementById('promoBadge').textContent = PROMO;
+    document.getElementById('promoTxt').textContent = 'Opération ' + PROMO + ' 2026 — ' + CFG[PROMO].debut + ' → ' + CFG[PROMO].fin;
+    document.getElementById('promoNote').textContent = 'Prix promos appliqués automatiquement selon les paliers';
+    bar.style.display = 'flex';
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+// ================================================================
+// AUTH
+// ================================================================
+function login() {
+  var u = document.getElementById('LU').value.trim().toLowerCase();
+  var p = document.getElementById('LP').value;
+  var ud = USERS[u];
+  if (ud && ud.p === p) {
+    CU = {login:u, nom:ud.nom};
+    document.getElementById('LS').style.display = 'none';
+    document.getElementById('APP').classList.add('on');
+    document.getElementById('U-NOM').textContent = CU.nom;
+    document.getElementById('L-ERR').textContent = '';
+    init();
+  } else {
+    document.getElementById('L-ERR').textContent = 'Identifiant ou mot de passe incorrect.';
+    document.getElementById('LP').value = '';
+  }
+}
+function logout() {
+  CU = null; cart = {}; implantTaux = 0;
+  document.getElementById('LS').style.display = 'flex';
+  document.getElementById('APP').classList.remove('on');
+  document.getElementById('LU').value = ''; document.getElementById('LP').value = '';
+}
+document.getElementById('LP').addEventListener('keydown', function(e){if(e.key==='Enter')login();});
+document.getElementById('LU').addEventListener('keydown', function(e){if(e.key==='Enter')document.getElementById('LP').focus();});
+
+// ================================================================
+// INIT
+// ================================================================
+function init() {
+  if (!CAT.length) { toast('catalogue.js non chargé','err'); return; }
+  var fams = [...new Set(CAT.map(function(p){return p.f;}).filter(Boolean))].sort();
+  var sel = document.getElementById('FAM-SEL');
+  fams.forEach(function(f){var o=document.createElement('option');o.value=o.textContent=f;sel.appendChild(o);});
+  setProfil(0);
+  updatePromoBar();
+}
+
+// ================================================================
+// PROFIL
+// ================================================================
+function setProfil(p) {
+  profil = p;
+  document.getElementById('tab0').className = 'tab p0' + (p===0?' on':'');
+  document.getElementById('tab1').className = 'tab p1' + (p===1?' on':'');
+  document.getElementById('ptsBar').classList.toggle('on', p===1);
+  document.getElementById('PTS-CART-ROW').style.display = p===1 ? '' : 'none';
+  document.getElementById('CART-LBL').textContent = p===1 ? 'BON DRILLSHOW' : 'BON DE COMMANDE';
+  // Filtre DrillShow auto
+  if (p===1) {
+    document.getElementById('PROMO-SEL').value = 'drill';
+  } else {
+    document.getElementById('PROMO-SEL').value = '';
+  }
+  cart = {};
+  filter();
+  renderCart();
+}
+
+// ================================================================
+// IMPLANT
+// ================================================================
+function applyImplant() {
+  var code = document.getElementById('IMP-INP').value.trim().toUpperCase();
+  if (!['IMPLANT5','IMPLANT10'].includes(code)) {
+    toast('Code inconnu. Utiliser IMPLANT5 ou IMPLANT10','err'); return;
+  }
+  implantTaux = CFG[code].taux;
+  document.getElementById('IMP-INP').value = '';
+  var pill = document.getElementById('IMP-PILL');
+  pill.innerHTML = '<div class="imp-pill">-' + implantTaux + '% IMPLANT '
+    + '<button onclick="clearImplant()">&#x2715;</button></div>';
+  recalcAll(); renderTbl(); renderCart();
+  toast('Remise IMPLANT -' + implantTaux + '% appliquée', 'ok');
+}
+function clearImplant() {
+  implantTaux = 0;
+  document.getElementById('IMP-PILL').innerHTML = '';
+  recalcAll(); renderTbl(); renderCart();
+}
+function recalcAll() {
+  Object.values(cart).forEach(function(item){
+    item.pa = getPA(item.p, item.qte);
+  });
+}
+
+// ================================================================
+// CALCUL PRIX
+// ================================================================
+function getGroupQte(grp, currentRef, currentQte) {
+  if (!grp || !PROMO) return currentQte;
+  var tpfx = PROMO.toLowerCase();
+  var total = currentQte;
+  Object.values(cart).forEach(function(item){
+    if (item.p.r !== currentRef && item.p[tpfx+'g'] === grp) {
+      total += item.qte;
+    }
+  });
+  return total;
+}
+
+function getPA(p, qte) {
+  var pa;
+
+  // 1. Base : PA standard ou paliers quantitatifs
+  if (p.u3 && qte >= p.u3 && p.p3) pa = p.p3;
+  else if (p.u2 && qte >= p.u2 && p.p2) pa = p.p2;
+  else if (p.u1 && qte >= p.u1 && p.p1) pa = p.p1;
+  else pa = p.pA;
+
+  // 2. DrillShow : PA DRILL si disponible
+  if (profil === 1 && p.dA) pa = p.dA;
+
+  // 3. Promo trimestrielle (T1/T2/T3) — sur TOUS les profils
+  if (PROMO) {
+    var tpfx = PROMO.toLowerCase();
+    var grp = p[tpfx+'g'];
+    if (grp) {
+      var pa1 = p[tpfx+'p1'] || 0;
+      var q1  = p[tpfx+'q1'] || 1;
+      var pa2 = p[tpfx+'p2'] || 0;
+      var q2  = p[tpfx+'q2'] || 0;
+      var grpQte = getGroupQte(grp, p.r, qte);
+      var paPromo = null;
+      if (pa2 && q2 && grpQte >= q2) paPromo = pa2;
+      else if (pa1 && grpQte >= q1) paPromo = pa1;
+      if (paPromo !== null) {
+        // Prendre le meilleur prix (DrillShow + T2 cumulés)
+        pa = (profil===1 && p.dA) ? Math.min(paPromo, p.dA) : paPromo;
+      }
+    }
+  }
+
+  // 4. Remise IMPLANT en dernier
+  if (implantTaux > 0) pa = Math.round(pa * (1-implantTaux/100) * 100) / 100;
+
+  return Math.round(pa * 100) / 100;
+}
+
+function getPalierLabel(p, qte) {
+  if (profil===1 && p.dA) {
+    if (PROMO && p[PROMO.toLowerCase()+'g']) return 't2';
+    return 'drill';
+  }
+  if (PROMO && p[PROMO.toLowerCase()+'g']) {
+    var tpfx=PROMO.toLowerCase(), grpQte=getGroupQte(p[tpfx+'g'],p.r,qte);
+    if (p[tpfx+'p2'] && grpQte>=(p[tpfx+'q2']||0)) return 't2-pal2';
+    if (p[tpfx+'p1'] && grpQte>=(p[tpfx+'q1']||1)) return 't2-pal1';
+    return '';
+  }
+  if (p.u3 && qte>=p.u3) return 'q3';
+  if (p.u2 && qte>=p.u2) return 'q2';
+  if (p.u1 && qte>=p.u1) return 'q1';
+  return '';
+}
+
+function fmt(v){ return parseFloat(v||0).toFixed(2).replace('.',','); }
+function qi(r){ return 'QI_'+r.replace(/[^a-z0-9]/gi,'_'); }
+
+// ================================================================
+// CATALOGUE TABLE
+// ================================================================
+function buildHeader() {
+  var h = '<tr>';
+  h += '<th>Référence</th><th>Désignation</th><th>Famille</th>';
+  h += '<th class="r">PA achat HT</th>';
+  if (profil===1) h += '<th class="r">PV vente HT</th>';
+  h += '<th class="c" style="min-width:110px">Quantité</th>';
+  if (profil===1) h += '<th class="c">Pts</th>';
+  h += '</tr>';
+  document.getElementById('TH').innerHTML = h;
+}
+
+function filter() {
+  if (!CAT.length) return;
+  var q = document.getElementById('SEARCH').value.toLowerCase().trim();
+  var fam = document.getElementById('FAM-SEL').value;
+  var psel = document.getElementById('PROMO-SEL').value;
+
+  filtered = CAT.filter(function(p){
+    if (fam && p.f !== fam) return false;
+    if (psel === 'promo' && !(PROMO && p[PROMO.toLowerCase()+'g'])) return false;
+    if (psel === 'drill' && !p.dA && !p.dV) return false;
+    if (q) return p.r.toLowerCase().includes(q) || p.d.toLowerCase().includes(q);
+    return true;
+  });
+
+  displayed = 0;
+  document.getElementById('TB').innerHTML = '';
+  buildHeader();
+  loadMore();
+  document.getElementById('COUNT').textContent = filtered.length;
+}
+
+function renderTbl() {
+  buildHeader();
+  document.getElementById('TB').innerHTML = '';
+  displayed = 0;
+  loadMore();
+}
+
+function loadMore() {
+  var tb = document.getElementById('TB');
+  var q = document.getElementById('SEARCH').value.toLowerCase().trim();
+  var end = Math.min(displayed + PG, filtered.length);
+
+  for (var i = displayed; i < end; i++) {
+    var p = filtered[i];
+    var sid = p.r.replace(/[^a-z0-9]/gi,'_');
+    var inC = !!cart[p.r];
+    var qv = inC ? cart[p.r].qte : 0;
+    var pa = getPA(p, qv||1);
+    var pal = getPalierLabel(p, qv||1);
+
+    var tr = document.createElement('tr');
+    tr.id = 'ROW_'+sid;
+    tr.className = inC ? 'in-cart' : (i%2===0 ? 'even' : 'odd');
+
+    // Tags
+    var tpfx = PROMO ? PROMO.toLowerCase() : '';
+    var hasPromo = PROMO && p[tpfx+'g'];
+    var hasDrill = p.dA || p.dV;
+    var tags = '';
+    if (hasPromo) tags += '<span class="tag tag-t2">'+PROMO+'</span>';
+    if (hasDrill) tags += '<span class="tag tag-ds">DRILL</span>';
+    if (p.pt > 0) tags += '<span class="tag tag-pts">'+p.pt+'pts</span>';
+
+    // Badge palier
+    var palBadge = '';
+    if (pal === 'drill') palBadge = '<span class="pal-badge pal-dr">DRILL</span>';
+    else if (pal === 't2-pal2') palBadge = '<span class="pal-badge pal-t2">PAL.2</span>';
+    else if (pal === 't2-pal1') palBadge = '<span class="pal-badge pal-t2">PAL.1</span>';
+    else if (pal === 'q3') palBadge = '<span class="pal-badge pal-q3">Q3</span>';
+    else if (pal === 'q2') palBadge = '<span class="pal-badge pal-q2">Q2</span>';
+    else if (pal === 'q1') palBadge = '<span class="pal-badge pal-q1">Q1</span>';
+
+    // Info groupe panaché
+    var grpInfo = '';
+    if (hasPromo) {
+      var grp = p[tpfx+'g'];
+      var grpQte = getGroupQte(grp, p.r, qv||0);
+      var q2 = p[tpfx+'q2']||0, q1 = p[tpfx+'q1']||1;
+      var pa2 = p[tpfx+'p2']||0;
+      if (q2 && grpQte>=q2) {
+        grpInfo = '<div class="grp-ok">✓ Palier 2 — PA:'+fmt(pa2)+'€</div>';
+      } else if (q2 && grpQte>0) {
+        grpInfo = '<div class="grp-info">Groupe '+grp+' : '+grpQte+'u / encore '+(q2-grpQte)+'u pour pal.2</div>';
+      }
+    }
+
+    // Colonnes PA / PV
+    var rq = hl(p.r, q), dq = hl(p.d, q);
+    var paCols = '<td class="r" style="font-weight:700;color:var(--V)">'+fmt(pa)+'&nbsp;€'+palBadge+'</td>';
+    var pvCol = '';
+    if (profil===1) {
+      var pv = p.dV || 0;
+      pvCol = '<td class="r" style="font-weight:700;color:var(--BL)">'+(pv?fmt(pv)+'&nbsp;€':'—')+'</td>';
+    }
+    var ptCol = profil===1 ? '<td class="c" style="font-size:9px;color:#2E7D32;font-weight:700">'+(p.pt||'')+'</td>' : '';
+
+    tr.innerHTML = '<td class="ref-cell">'+rq+'</td>'
+      + '<td class="desc-cell">'+dq+tags+grpInfo+'</td>'
+      + '<td class="fam-cell">'+p.f+'</td>'
+      + paCols + pvCol
+      + '<td class="c"><div class="qty-wrap">'
+        + '<button class="qty-btn" data-ref="'+p.r+'" data-d="-1">&#x2212;</button>'
+        + '<input type="number" class="qty-inp'+(inC?' active':'')+'" id="'+qi(p.r)+'" data-ref="'+p.r+'" value="'+(qv||'')+'" min="0" placeholder="0">'
+        + '<button class="qty-btn" data-ref="'+p.r+'" data-d="1">+</button>'
+      + '</div></td>'
+      + ptCol;
+
+    tb.appendChild(tr);
+
+    // Events
+    tr.querySelectorAll('.qty-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        adj(btn.dataset.ref, parseInt(btn.dataset.d));
+      });
+    });
+    var inp = tr.querySelector('.qty-inp');
+    if (inp) inp.addEventListener('input', function(){ setQ(inp.dataset.ref, inp.value); });
+  }
+
+  displayed = end;
+  var rem = filtered.length - displayed;
+  document.getElementById('PG-INFO').textContent = displayed + ' / ' + filtered.length + ' produits affichés';
+  document.getElementById('MORE-BTN').style.display = rem > 0 ? 'block' : 'none';
+  if (rem > 0) document.getElementById('MORE-BTN').textContent = '▼ ' + Math.min(PG,rem) + ' produits de plus (' + rem + ' restants)';
+}
+
+function hl(text, q) {
+  if (!q || !text) return text||'';
+  var r='', pos=0, tl=text.toLowerCase(), ql=q.toLowerCase();
+  while (pos<text.length) {
+    var ix=tl.indexOf(ql,pos);
+    if (ix<0){r+=text.slice(pos);break;}
+    r+=text.slice(pos,ix)+'<mark>'+text.slice(ix,ix+q.length)+'</mark>';
+    pos=ix+q.length;
+  }
+  return r;
+}
+
+// ================================================================
+// QTÉ
+// ================================================================
+function adj(ref, d) {
+  var inp = document.getElementById(qi(ref));
+  if (!inp) return;
+  var v = Math.max(0, (parseInt(inp.value)||0) + d);
+  inp.value = v; setQ(ref, v);
+}
+
+function setQ(ref, val) {
+  var qte = parseInt(val);
+  var p = CAT.find(function(x){return x.r===ref;});
+  if (!p) return;
+  var row = document.getElementById('ROW_'+ref.replace(/[^a-z0-9]/gi,'_'));
+  var inp = document.getElementById(qi(ref));
+
+  if (qte > 0) {
+    var pa = getPA(p, qte);
+    cart[ref] = {p:p, qte:qte, pa:pa};
+    if (inp) inp.classList.add('active');
+    if (row) row.className = 'in-cart';
+    recalcGroup(p, ref);
+  } else {
+    delete cart[ref];
+    if (inp) { inp.classList.remove('active'); inp.value = ''; }
+    if (row) row.className = inp ? (Array.from(document.getElementById('TB').children).indexOf(row)%2===0?'even':'odd') : 'odd';
+    recalcGroup(p, ref);
+  }
+  renderCart();
+  updatePtsBar();
+}
+
+function recalcGroup(changedProd, changedRef) {
+  if (!PROMO) return;
+  var tpfx = PROMO.toLowerCase();
+  var grp = changedProd[tpfx+'g'];
+  if (!grp) return;
+  Object.keys(cart).forEach(function(ref){
+    if (ref === changedRef) return;
+    var item = cart[ref];
+    if (item && item.p[tpfx+'g'] === grp) {
+      var newPA = getPA(item.p, item.qte);
+      item.pa = newPA;
+    }
+  });
+}
+
+function rmCart(ref) {
+  var p = cart[ref] ? cart[ref].p : null;
+  delete cart[ref];
+  var inp = document.getElementById(qi(ref));
+  if (inp) { inp.value=''; inp.classList.remove('active'); }
+  var row = document.getElementById('ROW_'+ref.replace(/[^a-z0-9]/gi,'_'));
+  if (row) { var idx=Array.from(document.getElementById('TB').children).indexOf(row); row.className=idx%2===0?'even':'odd'; }
+  if (p) recalcGroup(p, ref);
+  renderCart(); updatePtsBar();
+}
+
+function clearCart() {
+  if (!confirm('Vider le bon de commande ?')) return;
+  Object.keys(cart).forEach(function(ref){
+    var inp=document.getElementById(qi(ref)); if(inp){inp.value='';inp.classList.remove('active');}
+    var row=document.getElementById('ROW_'+ref.replace(/[^a-z0-9]/gi,'_')); if(row){var idx=Array.from(document.getElementById('TB').children).indexOf(row);row.className=idx%2===0?'even':'odd';}
+  });
+  cart = {}; renderCart(); updatePtsBar();
+}
+
+// ================================================================
+// PANIER
+// ================================================================
+function renderCart() {
+  var items = Object.values(cart);
+  document.getElementById('CART-CNT').textContent = items.length;
+  var body = document.getElementById('CART-BODY');
+  if (!items.length) {
+    body.innerHTML = '<div class="cart-empty">📋<br><br>Ajoutez des produits<br>depuis le catalogue.</div>';
+    document.getElementById('CART-TOT').textContent = '0,00 €';
+    document.getElementById('CART-PTS').textContent = '0';
+    return;
+  }
+  var tot=0, pts=0, divs=[];
+  var tpfx = PROMO ? PROMO.toLowerCase() : '';
+
+  items.forEach(function(item){
+    var p=item.p, pa=item.pa, sub=Math.round(pa*item.qte*100)/100;
+    tot += sub;
+    if (profil===1) pts += (p.pt||0)*item.qte;
+    var hasPromo = PROMO && p[tpfx+'g'];
+    var d = document.createElement('div'); d.className='ci';
+    var note = hasPromo && p[tpfx+'n'] ? '<div class="ci-promo">'+p[tpfx+'n'].substring(0,55)+'</div>' : '';
+    var drillBadge = (profil===1&&p.dA) ? '<span class="tag tag-ds" style="font-size:7px">DRILL</span>' : '';
+    var t2Badge = hasPromo ? '<span class="tag tag-t2" style="font-size:7px">'+PROMO+'</span>' : '';
+    var pvInfo = (profil===1&&p.dV) ? '<div style="font-size:9px;color:var(--BL)">PV conseillé : '+fmt(p.dV)+' €</div>' : '';
+    d.innerHTML = '<button class="ci-rm" data-ref="'+p.r+'">&#x2715;</button>'
+      + '<div class="ci-ref">'+p.r+drillBadge+t2Badge+'</div>'
+      + '<div class="ci-desc">'+p.d.substring(0,50)+(p.d.length>50?'…':'')+'</div>'
+      + '<div class="ci-row"><span style="color:var(--GM)">'+item.qte+' × '+fmt(pa)+' €</span><span class="ci-prix">'+fmt(sub)+' €</span></div>'
+      + pvInfo + note;
+    divs.push(d);
+  });
+
+  body.innerHTML = '';
+  divs.forEach(function(d){
+    body.appendChild(d);
+    d.querySelector('.ci-rm').addEventListener('click', function(e){ rmCart(e.currentTarget.dataset.ref); });
+  });
+
+  document.getElementById('CART-TOT').textContent = fmt(Math.round(tot*100)/100) + ' €';
+  document.getElementById('CART-PTS').textContent = pts;
+}
+
+function updatePtsBar() {
+  if (profil!==1) return;
+  var pts=0; Object.values(cart).forEach(function(item){pts+=(item.p.pt||0)*item.qte;});
+  var seuil=CFG.SEUIL, nb=Math.floor(pts/seuil);
+  document.getElementById('PTS-BIG').textContent = pts+' pts';
+  document.getElementById('PTS-GIFT').textContent = nb>0?'🎁 '+nb+' cadeau'+(nb>1?'x':'')+' vitrine':'';
+  document.getElementById('PTS-SEUIL').textContent = 'Seuil : '+seuil+' pts / cadeau';
+}
+
+// ================================================================
+// EXPORT EXCEL — MISE EN PAGE DIAGER
+// ================================================================
+function exportExcel() {
+  var items = Object.values(cart);
+  if (!items.length) { toast('Bon de commande vide.','err'); return; }
+
+  var dest  = document.getElementById('DEST').value.trim() || '—';
+  var refCh = document.getElementById('REF-CH').value.trim() || '—';
+  var num   = document.getElementById('NUM-CMD').value.trim() || ('CMD-'+(++docNum));
+  localStorage.setItem('tsd_num', docNum);
+
+  var now = new Date(), ds = now.toLocaleDateString('fr-FR');
+  var tva = CFG.TVA;
+  var pl = profil===1 ? 'DRILLSHOW' : 'DISTRIBUTEUR';
+  var isDS = profil===1;
+  var tpfx = PROMO ? PROMO.toLowerCase() : '';
+
+  // Totaux
+  var totHT=0, ptsTot=0;
+  var lines = items.map(function(item,i){
+    var p=item.p, pa=item.pa, qte=item.qte;
+    var sub = Math.round(pa*qte*100)/100;
+    totHT += sub;
+    if (isDS) ptsTot += (p.pt||0)*qte;
+    var hasPromo = PROMO && p[tpfx+'g'];
+    var isDrill = isDS && p.dA;
+    var st = [];
+    if (hasPromo) st.push(PROMO);
+    if (isDrill) st.push('DRILL');
+    return {i:i+1, ref:p.r, d:p.d, f:p.f, pa:pa, pv:isDS?(p.dV||0):0, qte:qte, sub:sub, pts:(p.pt||0)*qte, st:st.join('+'), note:hasPromo&&p[tpfx+'n']?p[tpfx+'n']:'', implantTaux:implantTaux};
+  });
+  totHT = Math.round(totHT*100)/100;
+  var totTVA = Math.round(totHT*tva/100*100)/100;
+  var totTTC = Math.round(totHT*(1+tva/100)*100)/100;
+
+  var wb = XLSX.utils.book_new();
+
+  // ── Colonnes selon profil ──
+  // DISTRIB : N° | REF | DÉSIGNATION | FAMILLE | STATUT | PA HT € | QTÉ | TOTAL HT €
+  // DRILL   : N° | REF | DÉSIGNATION | FAMILLE | STATUT | PA DRILL HT € | PV DRILL HT € | QTÉ | TOTAL HT € | PTS
+  var NC = isDS ? 10 : 8;
+
+  // Styles réutilisables
+  var border = {
+    top:{style:'thin',color:{rgb:'DDDDDD'}},
+    bottom:{style:'thin',color:{rgb:'DDDDDD'}},
+    left:{style:'thin',color:{rgb:'DDDDDD'}},
+    right:{style:'thin',color:{rgb:'DDDDDD'}}
+  };
+  var borderTop = {
+    top:{style:'medium',color:{rgb:'111111'}},
+    bottom:{style:'thin',color:{rgb:'DDDDDD'}},
+    left:{style:'thin',color:{rgb:'DDDDDD'}},
+    right:{style:'thin',color:{rgb:'DDDDDD'}}
+  };
+
+  function S(bg, fg, sz, bold, halign, numFmt, italic) {
+    return {
+      fill:{fgColor:{rgb:bg||'FFFFFF'}},
+      font:{color:{rgb:fg||'111111'},bold:!!bold,sz:sz||10,name:'Calibri',italic:!!italic},
+      alignment:{horizontal:halign||'left',vertical:'center',wrapText:false},
+      border:border,
+      numFmt:numFmt||''
+    };
+  }
+
+  function cell(v,s,t) {
+    return {v:v, s:s, t:t||(typeof v==='number'?'n':'s')};
+  }
+  function nc(v,s) { return {v:parseFloat(v)||0, s:s, t:'n'}; }
+  function ec(bg,fg,sz) { return {v:'',s:S(bg||'FFFFFF',fg||'111111',sz||10),t:'s'}; }
+
+  var ws = {};
+  ws['!merges'] = [];
+  ws['!rows'] = [];
+  var ROW = 0;
+
+  function setC(r,c,obj) {
+    ws[XLSX.utils.encode_cell({r:r,c:c})] = obj;
+  }
+  function fillRow(r, s) {
+    for (var c=0;c<NC;c++) if(!ws[XLSX.utils.encode_cell({r:r,c:c})]) setC(r,c,{v:'',s:s,t:'s'});
+  }
+  function merge(r,c1,c2) {
+    ws['!merges'].push({s:{r:r,c:c1},e:{r:r,c:c2}});
+  }
+
+  // ─────────────────────────────────────────────────
+  // LIGNE 0 : espace
+  ws['!rows'].push({hpt:5});
+  fillRow(0, S('FFFFFF','FFFFFF',1));
+  ROW=1;
+
+  // LIGNE 1 : bandeau noir + jaune
+  ws['!rows'].push({hpt:32});
+  // Partie gauche noire
+  for (var c=0;c<Math.ceil(NC*0.55);c++) setC(ROW,c,{v:c===0?'DIAGER®  —  BON DE COMMANDE  '+pl:'',s:{fill:{fgColor:{rgb:'111111'}},font:{color:{rgb:c===0?'F5C500':'111111'},bold:true,sz:c===0?16:1,name:'Calibri'},alignment:{horizontal:'left',vertical:'center'}},t:'s'});
+  merge(ROW,0,Math.ceil(NC*0.55)-1);
+  // Partie droite jaune
+  for (var c=Math.ceil(NC*0.55);c<NC;c++) setC(ROW,c,{v:c===Math.ceil(NC*0.55)?pl:'',s:{fill:{fgColor:{rgb:'F5C500'}},font:{color:{rgb:'111111'},bold:true,sz:c===Math.ceil(NC*0.55)?14:1,name:'Calibri'},alignment:{horizontal:'right',vertical:'center'}},t:'s'});
+  merge(ROW,Math.ceil(NC*0.55),NC-1);
+  ROW++;
+
+  // LIGNE 2 : barre jaune fine
+  ws['!rows'].push({hpt:4});
+  for (var c=0;c<NC;c++) setC(ROW,c,{v:'',s:{fill:{fgColor:{rgb:'F5C500'}},font:{sz:1}},t:'s'});
+  ROW++;
+
+  // LIGNES 3-5 : infos doc
+  var infoSL = S('F7F7F5','777777',9,true,'right');
+  var infoSV = S('F7F7F5','111111',10,false,'left');
+  var infoSVB = S('F7F7F5','1255A0',11,true,'left');
+  var infoSP = S('FFF9DC','856404',10,true,'left');
+
+  var mid = Math.floor(NC/2);
+
+  // Ligne infos 1
+  ws['!rows'].push({hpt:17});
+  setC(ROW,0,cell('Établi par :',infoSL)); setC(ROW,1,cell(CU.nom,{...infoSVB}));
+  for(var c=2;c<mid;c++) setC(ROW,c,{v:'',s:infoSV,t:'s'});
+  setC(ROW,mid,cell('N° commande :',infoSL)); setC(ROW,mid+1,cell(num,infoSVB));
+  for(var c=mid+2;c<NC;c++) setC(ROW,c,{v:'',s:infoSV,t:'s'});
+  merge(ROW,1,mid-1); merge(ROW,mid+1,NC-1);
+  ROW++;
+
+  // Ligne infos 2
+  ws['!rows'].push({hpt:17});
+  setC(ROW,0,cell('Destinataire :',infoSL)); setC(ROW,1,cell(dest,infoSV));
+  for(var c=2;c<mid;c++) setC(ROW,c,{v:'',s:infoSV,t:'s'});
+  setC(ROW,mid,cell('Date :',infoSL)); setC(ROW,mid+1,cell(ds,infoSV));
+  for(var c=mid+2;c<NC;c++) setC(ROW,c,{v:'',s:infoSV,t:'s'});
+  merge(ROW,1,mid-1); merge(ROW,mid+1,NC-1);
+  ROW++;
+
+  // Ligne infos 3
+  ws['!rows'].push({hpt:17});
+  setC(ROW,0,cell('Réf. chantier :',infoSL)); setC(ROW,1,cell(refCh,infoSV));
+  for(var c=2;c<mid;c++) setC(ROW,c,{v:'',s:infoSV,t:'s'});
+  setC(ROW,mid,cell('Opération :',infoSL));
+  setC(ROW,mid+1,cell(PROMO?(PROMO+' 2026 — active'):'Aucune',PROMO?infoSP:infoSV));
+  for(var c=mid+2;c<NC;c++) setC(ROW,c,{v:'',s:infoSV,t:'s'});
+  merge(ROW,1,mid-1); merge(ROW,mid+1,NC-1);
+  ROW++;
+
+  // Barre jaune séparation
+  ws['!rows'].push({hpt:4});
+  for(var c=0;c<NC;c++) setC(ROW,c,{v:'',s:{fill:{fgColor:{rgb:'F5C500'}},font:{sz:1}},t:'s'});
+  ROW++;
+
+  // ─────────────────────────────────────────────────
+  // EN-TÊTES COLONNES
+  ws['!rows'].push({hpt:26});
+  var hdrs = isDS
+    ? ['N°','Référence','Désignation','Famille','Statut','PA DRILL HT €','PV DRILL HT €','Qté','Total HT €','Points']
+    : ['N°','Référence','Désignation','Famille','Statut promo','PA achat HT €','Qté','Total HT €'];
+
+  var hBG = {
+    0:'111111',1:'111111',2:'111111',3:'111111',4:'111111',
+    5:isDS?'1B5E20':'1A3A6A',
+    6:isDS?'1B5E20':'F5C500',
+    7:isDS?'F5C500':'F5C500',
+    8:isDS?'1B6B2A':'111111',
+    9:isDS?'2E7D32':'111111'
+  };
+  var hFG = {
+    0:'FFFFFF',1:'FFFFFF',2:'FFFFFF',3:'FFFFFF',4:'FFFFFF',
+    5:'FFFFFF',6:isDS?'FFFFFF':'111111',7:isDS?'111111':'111111',
+    8:isDS?'FFFFFF':'111111',9:isDS?'FFFFFF':'111111'
+  };
+  hdrs.forEach(function(h,c){
+    setC(ROW,c,{v:h,s:{
+      fill:{fgColor:{rgb:hBG[c]||'111111'}},
+      font:{color:{rgb:hFG[c]||'FFFFFF'},bold:true,sz:9,name:'Calibri'},
+      alignment:{horizontal:c>=5?'right':c===0?'center':'left',vertical:'center',wrapText:true},
+      border:{bottom:{style:'medium',color:{rgb:'F5C500'}},top:{style:'thin',color:{rgb:'333333'}},left:{style:'thin',color:{rgb:'333333'}},right:{style:'thin',color:{rgb:'333333'}}}
+    },t:'s'});
+  });
+  ROW++;
+
+  // ─────────────────────────────────────────────────
+  // LIGNES PRODUITS
+  lines.forEach(function(l,i){
+    ws['!rows'].push({hpt:16});
+    var z = i%2!==0;
+    var bg0 = z?'F5F5F5':'FFFFFF';
+    var bgPA = z?'DCE9F8':'EBF3FF';
+    var bgPV = z?'D5EDD7':'E8F5E9';
+    var bgTot = z?'D5EDD7':'E8F5E9';
+    var bgQ = z?'F0F0F0':'F8F8F8';
+    var bgSt = z?'FFF3C0':'FFF9DC';
+
+    var sN   = S(bg0,'AAAAAA',8,false,'center');
+    var sRef = S(bg0,'1255A0',11,true,'center');
+    var sDes = S(bg0,'111111',9,false,'left');
+    var sFam = S(bg0,'888888',8,false,'left');
+    var sSt  = S(bgSt,'856404',8,false,'center');
+    var sPA  = {...S(bgPA,'888888',9,false,'right'),...{numFmt:'#,##0.00'}};
+    var sPV  = {...S(bgPV,'1B5E20',10,true,'right'),...{numFmt:'#,##0.00'}};
+    var sQ   = S(bgQ,'111111',10,true,'center');
+    var sTot = {...S(bgTot,'1B6B2A',11,true,'right'),...{numFmt:'#,##0.00'}};
+    var sPts = S(bgPV,'2E7D32',10,true,'center');
+
+    if (isDS) {
+      [nc(l.i,sN),cell(l.ref,sRef),cell(l.d,sDes),cell(l.f,sFam),cell(l.st,sSt),
+       nc(l.pa,sPA),nc(l.pv,sPV),nc(l.qte,sQ),nc(l.sub,sTot),nc(l.pts,sPts)]
+      .forEach(function(obj,c){setC(ROW,c,obj);});
+    } else {
+      [nc(l.i,sN),cell(l.ref,sRef),cell(l.d,sDes),cell(l.f,sFam),cell(l.st,sSt),
+       nc(l.pa,sPA),nc(l.qte,sQ),nc(l.sub,sTot)]
+      .forEach(function(obj,c){setC(ROW,c,obj);});
+    }
+    ROW++;
+  });
+
+  // ─────────────────────────────────────────────────
+  // TOTAUX
+  // Barre séparation
+  ws['!rows'].push({hpt:4});
+  for(var c=0;c<NC;c++) setC(ROW,c,{v:'',s:{fill:{fgColor:{rgb:'F5C500'}},font:{sz:1}},t:'s'});
+  ROW++;
+
+  function totLine(lbl,val,lblS,valS,h) {
+    ws['!rows'].push({hpt:h||18});
+    for(var c=0;c<NC-2;c++) setC(ROW,c,{v:'',s:lblS,t:'s'});
+    setC(ROW,NC-2,{v:lbl,s:lblS,t:'s'});
+    setC(ROW,NC-1,nc(val,valS));
+    merge(ROW,0,NC-3);
+    ROW++;
+  }
+
+  var sLbl = S('EEEEEE','555555',10,true,'right');
+  var sVal = {...S('EEEEEE','1B6B2A',11,true,'right'),...{numFmt:'#,##0.00'}};
+  var sTvaL = S('F0F0F0','888888',9,false,'right');
+  var sTvaV = {...S('F0F0F0','888888',9,false,'right'),...{numFmt:'#,##0.00'}};
+  var sTTCL = S('F5C500','111111',14,true,'right');
+  var sTTCV = {...S('F5C500','111111',16,true,'right'),...{numFmt:'#,##0.00'}};
+
+  totLine('Total HT produits', totHT, sLbl, sVal);
+  totLine('TVA '+tva+' %', totTVA, sTvaL, sTvaV);
+  totLine('MONTANT TTC', totTTC, sTTCL, sTTCV, 26);
+
+  // Points DrillShow
+  if (isDS && ptsTot > 0) {
+    ws['!rows'].push({hpt:5});
+    for(var c=0;c<NC;c++) setC(ROW,c,{v:'',s:{fill:{fgColor:{rgb:'E8F5E9'}},font:{sz:1}},t:'s'});
+    ROW++;
+    var sPL = S('E8F5E9','2E7D32',11,true,'right');
+    var sPV2 = {...S('E8F5E9','2E7D32',13,true,'right'),...{numFmt:'0'}};
+    ws['!rows'].push({hpt:20});
+    for(var c=0;c<NC-2;c++) setC(ROW,c,{v:'',s:sPL,t:'s'});
+    setC(ROW,NC-2,{v:'🏆 Points fidélité DrillShow',s:sPL,t:'s'});
+    setC(ROW,NC-1,nc(ptsTot,sPV2));
+    merge(ROW,0,NC-3);
+    ROW++;
+    ws['!rows'].push({hpt:16});
+    var nb = Math.floor(ptsTot/CFG.SEUIL);
+    var sP2L = S('E8F5E9','2E7D32',9,false,'right');
+    var sP2V = {...S('E8F5E9','2E7D32',10,true,'right'),...{numFmt:'0'}};
+    for(var c=0;c<NC-2;c++) setC(ROW,c,{v:'',s:sP2L,t:'s'});
+    setC(ROW,NC-2,{v:'Cadeaux vitrine (seuil '+CFG.SEUIL+' pts)',s:sP2L,t:'s'});
+    setC(ROW,NC-1,nc(nb,sP2V));
+    merge(ROW,0,NC-3);
+    ROW++;
+  }
+
+  // ─────────────────────────────────────────────────
+  // PIED DE PAGE
+  ws['!rows'].push({hpt:4},{hpt:14},{hpt:12});
+  // Barre jaune
+  for(var c=0;c<NC;c++) setC(ROW,c,{v:'',s:{fill:{fgColor:{rgb:'F5C500'}},font:{sz:1}},t:'s'});
+  ROW++;
+  // Adresse
+  setC(ROW,0,{v:'DIAGER — Rue Henri Moissan — ZI — BP 90149 — 39802 POLIGNY cedex 2 — FRANCE — +33 (0)3 84 73 74 75',
+    s:S('F5C500','111111',8,false,'center'),t:'s'});
+  merge(ROW,0,NC-1); ROW++;
+  // Mentions
+  setC(ROW,0,{v:CFG.MENTIONS,s:S('111111','666666',7,false,'center',''/**/,true),t:'s'});
+  merge(ROW,0,NC-1); ROW++;
+
+  ws['!ref'] = 'A1:'+XLSX.utils.encode_cell({r:ROW,c:NC-1});
+
+  // Largeurs colonnes
+  if (isDS) {
+    ws['!cols'] = [{wch:5},{wch:16},{wch:48},{wch:16},{wch:10},{wch:14},{wch:14},{wch:7},{wch:14},{wch:8}];
+  } else {
+    ws['!cols'] = [{wch:5},{wch:16},{wch:54},{wch:16},{wch:12},{wch:14},{wch:7},{wch:14}];
+  }
+
+  XLSX.utils.book_append_sheet(wb, ws, num.substring(0,31));
+  XLSX.writeFile(wb, 'DIAGER_'+pl+'_'+num+'_'+now.getFullYear()+('0'+(now.getMonth()+1)).slice(-2)+('0'+now.getDate()).slice(-2)+'.xlsx', {cellStyles:true});
+  toast('Excel téléchargé !','ok');
+}
+
+// ================================================================
+// EXPORT PDF
+// ================================================================
+function exportPDF() {
+  var items = Object.values(cart);
+  if (!items.length) { toast('Bon de commande vide.','err'); return; }
+  var dest  = document.getElementById('DEST').value.trim() || '—';
+  var refCh = document.getElementById('REF-CH').value.trim() || '—';
+  var num   = document.getElementById('NUM-CMD').value.trim() || 'CMD-001';
+  var now = new Date(), ds = now.toLocaleDateString('fr-FR');
+  var pl = profil===1 ? 'DRILLSHOW' : 'DISTRIBUTEUR';
+  var isDS = profil===1;
+  var tpfx = PROMO ? PROMO.toLowerCase() : '';
+  var totHT=0, ptsTot=0;
+  items.forEach(function(item){ totHT+=Math.round(item.pa*item.qte*100)/100; if(isDS)ptsTot+=(item.p.pt||0)*item.qte; });
+  totHT=Math.round(totHT*100)/100;
+  var totTVA=Math.round(totHT*CFG.TVA/100*100)/100, totTTC=Math.round(totHT*(1+CFG.TVA/100)*100)/100;
+
+  var rows='';
+  items.forEach(function(item,i){
+    var p=item.p, sub=Math.round(item.pa*item.qte*100)/100;
+    var bg=i%2===0?'#fff':'#f7f7f5';
+    var hasPromo=PROMO&&p[tpfx+'g'];
+    var st=hasPromo?'<span style="background:#FFF3C0;color:#856404;padding:1px 5px;font-size:7pt;font-weight:700;border:1px solid #F0D060">'+PROMO+'</span>':'';
+    if(isDS&&p.dA)st+='<span style="background:#E8F5E9;color:#1B5E20;padding:1px 5px;font-size:7pt;font-weight:700;margin-left:2px">DRILL</span>';
+    rows+='<tr style="background:'+bg+'">'
+      +'<td style="text-align:center;color:#aaa">'+(i+1)+'</td>'
+      +'<td style="color:#1255A0;font-weight:700;font-family:monospace">'+p.r+'</td>'
+      +'<td>'+p.d+'</td>'
+      +'<td style="text-align:center">'+st+'</td>'
+      +'<td style="text-align:right;font-weight:700;color:#1B6B2A">'+fmt(item.pa)+'&nbsp;€</td>'
+      +(isDS?'<td style="text-align:right;color:#1255A0">'+(p.dV?fmt(p.dV):'—')+'&nbsp;€</td>':'')
+      +'<td style="text-align:center;font-weight:700">'+item.qte+'</td>'
+      +'<td style="text-align:right;font-weight:700">'+fmt(sub)+'&nbsp;€</td>'
+      +(isDS?'<td style="text-align:center;color:#2E7D32;font-weight:700">'+(p.pt?'+'+p.pt*item.qte:'')+'</td>':'')
+      +'</tr>';
+  });
+
+  var H='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>DIAGER '+num+'</title>'
++'<style>*{box-sizing:border-box;margin:0;padding:0;}@page{size:A4;margin:8mm 10mm 14mm;}body{font-family:Arial,sans-serif;font-size:9pt;color:#111;}'
++'.band{background:#111;display:flex;min-height:18mm;}'
++'.bl{flex:1;padding:4mm 5mm;display:flex;flex-direction:column;justify-content:center;}'
++'.logo{font-size:24pt;font-weight:900;color:#F5C500;letter-spacing:2px;}'
++'.tagline{font-size:6pt;color:#555;letter-spacing:2px;margin-top:1mm;}'
++'.br{background:#F5C500;padding:4mm 5mm;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;min-width:72mm;}'
++'.tit{font-size:15pt;font-weight:900;color:#111;}'
++'.pl{font-size:8pt;font-weight:700;color:#222;margin-top:1mm;}'
++'.bj{background:#F5C500;height:3px;}'
++'.meta{display:flex;border-bottom:.5px solid #e0e0e0;}'
++'.mc{flex:1;padding:3mm;}'
++'.mc+.mc{border-left:.5px solid #eee;}'
++'.mr{display:flex;gap:2mm;margin-bottom:2mm;font-size:8pt;align-items:baseline;}'
++'.ml{font-weight:700;color:#666;min-width:22mm;}'
++'.mv{color:#111;}.mvb{font-weight:700;color:#1255A0;}.mvp{font-weight:700;color:#856404;background:#FFF9DC;padding:1px 5px;}'
++'table{width:100%;border-collapse:collapse;margin-top:3mm;font-size:8.5pt;}'
++'thead tr{background:#111;}th{padding:2.5mm 2mm;font-size:8pt;color:#fff;font-weight:700;border:.3px solid #333;text-align:left;}'
++'td{padding:2mm;border:.3px solid #ddd;vertical-align:middle;}'
++'.tots{display:flex;justify-content:flex-end;margin-top:3mm;}'
++'.tt{border-collapse:collapse;min-width:72mm;}'
++'.tt td{padding:2.5mm 3mm;font-size:9pt;border:.3px solid #ddd;}'
++'.tl{font-weight:700;color:#555;text-align:right;background:#f4f4f4;}'
++'.tv{text-align:right;font-weight:700;}'
++'.ttcl{background:#F5C500;border:1.5px solid #111;font-weight:900;text-align:right;font-size:11pt;}'
++'.ttcv{background:#F5C500;border:1.5px solid #111;font-weight:900;text-align:right;font-size:15pt;}'
++'.fj{background:#F5C500;height:2px;margin-top:5mm;}'
++'.ft{background:#111;color:#666;font-size:6pt;text-align:center;padding:2.5mm;line-height:1.8;}'
++'.pbtn{position:fixed;top:8px;right:8px;background:#F5C500;border:none;padding:10px 22px;font-size:14px;font-weight:900;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3);}'
++'@media print{.pbtn{display:none!important}}'
++'</style></head><body>'
++'<button class="pbtn" onclick="window.print()">🖨 Sauvegarder en PDF</button>'
++'<div class="band"><div class="bl"><div class="logo">DIAGER®</div><div class="tagline">DRILLING · SCREW BITS · SAWING</div></div>'
++'<div class="br"><div class="tit">BON DE COMMANDE</div><div class="pl">'+pl+'</div></div></div>'
++'<div class="bj"></div>'
++'<div class="meta"><div class="mc">'
++'<div class="mr"><span class="ml">Établi par</span><span class="mvb">'+CU.nom+'</span></div>'
++'<div class="mr"><span class="ml">Destinataire</span><span class="mv">'+dest+'</span></div>'
++'<div class="mr"><span class="ml">Réf. chantier</span><span class="mv">'+refCh+'</span></div>'
++'</div><div class="mc">'
++'<div class="mr"><span class="ml">N° commande</span><span class="mvb">'+num+'</span></div>'
++'<div class="mr"><span class="ml">Date</span><span class="mv">'+ds+'</span></div>'
++(PROMO?'<div class="mr"><span class="ml">Opération</span><span class="mvp">'+PROMO+' 2026 — active</span></div>':'')
++'</div></div>'
++'<div class="bj" style="height:2px;margin:0;"></div>'
++'<table><thead><tr><th style="width:4%;text-align:center">N°</th><th style="width:13%">Référence</th><th>Désignation</th>'
++'<th style="width:9%;text-align:center">Statut</th><th style="width:11%;text-align:right">PA achat HT</th>'
++(isDS?'<th style="width:11%;text-align:right">PV vente HT</th>':'')
++'<th style="width:6%;text-align:center">Qté</th><th style="width:11%;text-align:right">Total HT</th>'
++(isDS?'<th style="width:7%;text-align:center">Pts</th>':'')
++'</tr></thead><tbody>'+rows+'</tbody></table>'
++'<div class="tots"><table class="tt">'
++'<tr><td class="tl">Total HT produits</td><td class="tv">'+fmt(totHT)+' €</td></tr>'
++'<tr><td class="tl" style="color:#aaa;font-weight:400">TVA '+CFG.TVA+' %</td><td class="tv" style="color:#aaa;font-weight:400">'+fmt(totTVA)+' €</td></tr>'
++'<tr><td class="ttcl">MONTANT TTC</td><td class="ttcv">'+fmt(totTTC)+' €</td></tr>'
++'</table></div>'
++(isDS&&ptsTot>0?'<div style="margin-top:2mm;padding:2.5mm 3mm;background:#E8F5E9;border:1px solid #A5D6A7;font-size:9pt;"><b style="color:#1B5E20">🏆 Points fidélité DrillShow : '+ptsTot+' pts</b> — Cadeaux vitrine (seuil '+CFG.SEUIL+' pts) : <b>'+Math.floor(ptsTot/CFG.SEUIL)+'</b></div>':'')
++'<div class="fj"></div><div class="ft">DIAGER — Rue Henri Moissan — ZI — BP 90149 — 39802 POLIGNY cedex 2 — FRANCE — +33 (0)3 84 73 74 75<br>'+CFG.MENTIONS+'</div>'
++'</body></html>';
+
+  var blob=new Blob([H],{type:'text/html;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var win=window.open(url,'_blank');
+  if(!win){var a=document.createElement('a');a.href=url;a.download='DIAGER_'+num+'.html';document.body.appendChild(a);a.click();document.body.removeChild(a);}
+  else toast('PDF ouvert — bouton jaune pour imprimer','ok');
+  setTimeout(function(){URL.revokeObjectURL(url);},120000);
+}
+
+// ================================================================
+// TOAST
+// ================================================================
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.className = type?'on '+type:'on';
+  clearTimeout(t._t); t._t = setTimeout(function(){ t.className=''; }, 4500);
+}
+
+document.addEventListener('DOMContentLoaded', function(){ document.getElementById('LU').focus(); });
+</script>
+</body>
+</html>
